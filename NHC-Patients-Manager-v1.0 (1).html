@@ -10143,27 +10143,16 @@ function performSearch(query) {
   });
   
   tbody.innerHTML = filtered.map(p => {
-    const score = qScore(p);
-    const scoreColor = score >= 80 ? 'var(--success)' : score >= 50 ? 'var(--warning)' : 'var(--danger)';
     const cycleInfo = getCycleFromDate(p.renewalDate);
     const cycleLabel = cycleInfo ? `${cycleInfo.name} ${cycleInfo.year}` : '—';
-    
+
     return `
-      <tr>
+      <tr style="cursor: pointer;" onclick="viewPatientDetails('${p.id}')" title="Cliquer pour voir les détails">
         <td style="font-weight: 600;">${fullName(p)}</td>
-        <td>${p.dob || '—'}</td>
+        <td>${protoName(p.protoId) || '—'}</td>
         <td>${docName(p.docId) || '—'}</td>
         <td>${centerName(p.centerId) || '—'}</td>
-        <td>${protoName(p.protoId) || '—'}</td>
-        <td>
-          <div class="progress" style="width: 100px;">
-            <div class="progress-bar" style="background: ${scoreColor}; width: ${score}%;"></div>
-          </div>
-        </td>
-        <td>${p.renewalDate ? `${cycleLabel}<br><span class="text-small text-muted">${p.renewalDate}</span>` : '—'}</td>
-        <td>
-          <button class="btn btn-secondary" data-action="open" data-id="${p.id}">Modifier</button>
-        </td>
+        <td>${p.renewalDate ? `<div>${p.renewalDate}</div><div class="text-small text-muted">${cycleLabel}</div>` : '—'}</td>
       </tr>
     `;
   }).join('');
