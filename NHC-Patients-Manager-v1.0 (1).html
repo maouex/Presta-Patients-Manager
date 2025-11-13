@@ -8334,55 +8334,96 @@ function goToMapping() {
 
 function autoMapFields() {
   const mappings = {
-    lastName: ['nom', 'last_name', 'lastname', 'surname', 'name', 'patient'],
-    firstName: ['prenom', 'prénom', 'first_name', 'firstname', 'givenname'],
-    dob: ['date_naissance', 'naissance', 'birth', 'dob', 'date_of_birth', 'ddn', 'date de naissance', 'né', 'date naissance'],
-    email: ['email', 'mail', 'courriel', 'e-mail'],
-    phone: ['telephone', 'téléphone', 'phone', 'tel', 'mobile', 'portable'],
-    address: ['adresse', 'address', 'rue', 'street', 'domicile', 'commune', 'ville'],
-    patientCode: ['code', 'id', 'identifiant', 'patient_code', 'patient_id', 'numero', 'numéro', 'n°', 'noota'],
-    renewalDate: ['renouvellement', 'renewal', 'date_renouvellement', 'ordonnance', 'prochaine', 'ordo', 'date ordo'],
-    docName: ['medecin', 'médecin', 'doctor', 'doc', 'prescripteur', 'diabetologue', 'diabétologue'],
-    centerName: ['centre', 'center', 'site', 'hopital', 'hôpital', 'hospital', 'etablissement'],
-    protoName: ['protocole', 'protocol', 'proto', 'matériel', 'materiel', 'pompe', 'dispositif'],
-    notes: ['notes', 'note', 'commentaire', 'comment', 'remarque', 'observation', 'info']
+    lastName: ['nom', 'last_name', 'lastname', 'surname', 'family', 'nom de famille', 'nom_famille'],
+    firstName: ['prenom', 'prénom', 'first_name', 'firstname', 'givenname', 'given', 'first', 'prénom_usuel'],
+    dob: ['date_naissance', 'naissance', 'birth', 'dob', 'date_of_birth', 'ddn', 'date de naissance', 'né', 'née', 'date naissance', 'birthdate', 'datedenaissance'],
+    email: ['email', 'mail', 'courriel', 'e-mail', 'e_mail', 'courrier', 'adresse_mail', 'adresse_email'],
+    phone: ['telephone', 'téléphone', 'phone', 'tel', 'mobile', 'portable', 'gsm', 'cellulaire', 'tel_portable', 'tel_mobile', 'numero_tel', 'numero_telephone', 'téléphone_portable'],
+    address: ['adresse', 'address', 'rue', 'street', 'domicile', 'adresse_postale', 'adresse_complete', 'voie'],
+    patientCode: ['code', 'id_patient', 'identifiant', 'patient_code', 'patient_id', 'numero', 'numéro', 'n°', 'noota', 'numero_patient', 'code_patient', 'ref', 'reference', 'référence'],
+    renewalDate: ['renouvellement', 'renewal', 'date_renouvellement', 'ordonnance', 'prochaine', 'ordo', 'date ordo', 'date_ordonnance', 'date_renew', 'renew_date', 'prochaine_visite'],
+    docName: ['medecin', 'médecin', 'doctor', 'doc', 'prescripteur', 'diabetologue', 'diabétologue', 'nom_medecin', 'nom_docteur', 'praticien', 'dr'],
+    centerName: ['centre', 'center', 'site', 'hopital', 'hôpital', 'hospital', 'etablissement', 'établissement', 'clinique', 'nom_centre'],
+    protoName: ['protocole', 'protocol', 'proto', 'matériel', 'materiel', 'pompe', 'dispositif', 'traitement', 'nom_protocole', 'type_materiel'],
+    notes: ['notes', 'note', 'commentaire', 'comment', 'remarque', 'observation', 'info', 'remarques', 'observations', 'commentaires']
   };
-  
+
   // Détecter si on a des colonnes séparées pour l'adresse (ADRESSE + CP + VILLE)
   let hasAddressColumns = false;
   let addressColIndex = -1;
   let cpColIndex = -1;
   let villeColIndex = -1;
-  
+
   for (let i = 0; i < csvImportState.headers.length; i++) {
-    const header = csvImportState.headers[i].toLowerCase();
-    if (header.includes('adresse') || header.includes('address') || header.includes('rue')) {
+    const header = csvImportState.headers[i].toLowerCase().replace(/[\s_\-]/g, '');
+    if (header.includes('adresse') || header.includes('address') || header.includes('rue') || header === 'voie') {
       addressColIndex = i;
-    } else if (header.includes('cp') || header.includes('code postal') || header.includes('postal')) {
+    } else if (header.includes('cp') || header.includes('codepostal') || header.includes('postal') || header === 'zip') {
       cpColIndex = i;
-    } else if (header.includes('ville') || header.includes('city') || header.includes('commune')) {
+    } else if (header.includes('ville') || header.includes('city') || header.includes('commune') || header === 'localite' || header === 'town') {
       villeColIndex = i;
     }
   }
-  
+
   hasAddressColumns = (addressColIndex >= 0 && cpColIndex >= 0 && villeColIndex >= 0);
-  
+
+  // Track which columns have been mapped to avoid duplicates
+  const mappedColumns = new Set();
+
   for (const [field, keywords] of Object.entries(mappings)) {
     const select = byId(`map_${field}`);
     if (!select) continue;
-    
+
     // Pour le champ adresse, si on a des colonnes séparées, prendre la première
     if (field === 'address' && hasAddressColumns) {
       select.value = String(addressColIndex);
+      mappedColumns.add(addressColIndex);
       continue;
     }
-    
+
+    // Try to find best match
+    let bestMatch = -1;
+    let bestMatchScore = 0;
+
     for (let i = 0; i < csvImportState.headers.length; i++) {
-      const header = csvImportState.headers[i].toLowerCase();
-      if (keywords.some(k => header.includes(k))) {
-        select.value = String(i);  // Convertir explicitement en string
-        break;
+      if (mappedColumns.has(i)) continue; // Skip already mapped columns
+
+      const header = csvImportState.headers[i].toLowerCase().replace(/[\s_\-]/g, '');
+
+      // Calculate match score
+      for (const keyword of keywords) {
+        const normalizedKeyword = keyword.toLowerCase().replace(/[\s_\-]/g, '');
+
+        // Exact match = 100 points
+        if (header === normalizedKeyword) {
+          bestMatch = i;
+          bestMatchScore = 100;
+          break;
+        }
+
+        // Contains keyword = 50 points
+        if (header.includes(normalizedKeyword)) {
+          if (50 > bestMatchScore) {
+            bestMatch = i;
+            bestMatchScore = 50;
+          }
+        }
+
+        // Keyword contains header = 30 points (for short headers)
+        if (normalizedKeyword.includes(header) && header.length >= 3) {
+          if (30 > bestMatchScore) {
+            bestMatch = i;
+            bestMatchScore = 30;
+          }
+        }
       }
+
+      if (bestMatchScore === 100) break; // Perfect match found
+    }
+
+    if (bestMatch >= 0 && bestMatchScore >= 30) {
+      select.value = String(bestMatch);
+      mappedColumns.add(bestMatch);
     }
   }
 }
@@ -8390,103 +8431,190 @@ function autoMapFields() {
 function executeCSVImport() {
   // Get mapping
   csvImportState.mapping = {};
-  
+
   for (const field of Object.keys(CSV_FIELD_MAPPING)) {
     const select = document.getElementById(`map_${field}`);
-    
+
     if (select && select.value !== '') {
       csvImportState.mapping[field] = parseInt(select.value);
     }
   }
-  
+
   // Check if at least name is mapped - vérifier avec 'in' pour éviter le problème avec la valeur 0
   if (!('lastName' in csvImportState.mapping) && !('firstName' in csvImportState.mapping)) {
     showToast('Mappez au moins le nom ou le prénom', 'error');
     return;
   }
-  
+
   // Import data
   let imported = 0;
   let errors = [];
-  
+  let skipped = 0;
+  let warnings = [];
+
+  // Helper functions for validation
+  const validateEmail = (email) => {
+    if (!email) return true; // Email is optional
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
+
+  const validatePhone = (phone) => {
+    if (!phone) return true; // Phone is optional
+    // Accept various phone formats
+    const cleaned = String(phone).replace(/[\s\.\-\(\)]/g, '');
+    return /^[\+]?[\d]{8,15}$/.test(cleaned);
+  };
+
+  const normalizePhone = (phone) => {
+    if (!phone) return '';
+    let cleaned = String(phone).trim().replace(/[\s\.\-]/g, '');
+    // Format french phone numbers
+    if (cleaned.length === 10 && cleaned.startsWith('0')) {
+      return cleaned.replace(/(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, '$1 $2 $3 $4 $5');
+    }
+    return phone;
+  };
+
+  const cleanString = (str) => {
+    if (!str) return '';
+    return String(str).trim().replace(/\s+/g, ' ');
+  };
+
+  const isDuplicate = (patient) => {
+    // Check for duplicate by name + dob or patientCode
+    return state.patients.some(p => {
+      // Check by patient code if both have it
+      if (patient.patientCode && p.patientCode &&
+          patient.patientCode.toLowerCase() === p.patientCode.toLowerCase()) {
+        return true;
+      }
+      // Check by name and date of birth
+      if (patient.lastName && p.lastName && patient.firstName && p.firstName && patient.dob && p.dob) {
+        return patient.lastName.toLowerCase() === p.lastName.toLowerCase() &&
+               patient.firstName.toLowerCase() === p.firstName.toLowerCase() &&
+               patient.dob === p.dob;
+      }
+      return false;
+    });
+  };
+
   for (let i = 0; i < csvImportState.parsedData.length; i++) {
     const row = csvImportState.parsedData[i];
-    
+
     try {
       // Extract values based on mapping
       const getValue = (field) => {
         const idx = csvImportState.mapping[field];
-        return idx !== undefined ? row[idx] : '';
+        if (idx === undefined) return '';
+        const value = row[idx];
+        return value !== null && value !== undefined ? String(value).trim() : '';
       };
-      
+
+      // Get basic info
+      const lastName = cleanString(getValue('lastName'));
+      const firstName = cleanString(getValue('firstName'));
+
+      // Skip empty rows
+      if (!lastName && !firstName) {
+        skipped++;
+        continue;
+      }
+
       // Détecter et combiner les colonnes d'adresse si elles sont séparées
       let fullAddress = getValue('address');
-      
+
       // Chercher des colonnes CP et VILLE non mappées qui pourraient compléter l'adresse
       if (fullAddress) {
         for (let j = 0; j < csvImportState.headers.length; j++) {
           const header = csvImportState.headers[j].toLowerCase();
           const value = row[j] ? String(row[j]).trim() : '';
-          
+
+          // Skip if this column is already mapped
+          if (Object.values(csvImportState.mapping).includes(j)) {
+            continue;
+          }
+
           // Si on trouve un code postal non encore inclus
-          if ((header.includes('cp') || header.includes('code postal')) && value && !fullAddress.includes(value)) {
+          if ((header.includes('cp') || header.includes('code postal') || header === 'postal') && value && !fullAddress.includes(value)) {
             fullAddress += ', ' + value;
           }
           // Si on trouve une ville non encore incluse
-          else if ((header.includes('ville') || header.includes('city')) && value && !fullAddress.toLowerCase().includes(value.toLowerCase())) {
+          else if ((header.includes('ville') || header.includes('city') || header.includes('commune')) && value && !fullAddress.toLowerCase().includes(value.toLowerCase())) {
             fullAddress += ' ' + value;
           }
         }
       }
-      
+
+      // Get and validate email
+      const email = cleanString(getValue('email'));
+      if (email && !validateEmail(email)) {
+        warnings.push(`Ligne ${i + 2}: Email invalide "${email}" - ignoré`);
+      }
+
+      // Get and normalize phone
+      let phone = cleanString(getValue('phone'));
+      if (phone && !validatePhone(phone)) {
+        warnings.push(`Ligne ${i + 2}: Téléphone invalide "${phone}" - conservé tel quel`);
+      } else if (phone) {
+        phone = normalizePhone(phone);
+      }
+
       const patient = {
         id: generateId(),
-        lastName: getValue('lastName'),
-        firstName: getValue('firstName'),
+        lastName: lastName,
+        firstName: firstName,
         dob: convertDateFormat(getValue('dob')),
-        email: getValue('email'),
-        phone: getValue('phone'),
-        address: fullAddress,
-        patientCode: getValue('patientCode'),
+        email: email && validateEmail(email) ? email : '',
+        phone: phone,
+        address: cleanString(fullAddress),
+        patientCode: cleanString(getValue('patientCode')),
         renewalDate: convertDateFormat(getValue('renewalDate')),
-        notes: getValue('notes'),
+        notes: cleanString(getValue('notes')),
         createdAt: Date.now(),
         updatedAt: Date.now()
       };
-      
+
+      // Check for duplicates
+      if (isDuplicate(patient)) {
+        warnings.push(`Ligne ${i + 2}: Patient "${firstName} ${lastName}" existe déjà - ignoré`);
+        skipped++;
+        continue;
+      }
+
       // Handle doctor
-      const docName = getValue('docName');
+      const docName = cleanString(getValue('docName'));
       if (docName) {
-        let doc = state.docs.find(d => d.name === docName);
+        let doc = state.docs.find(d => d.name.toLowerCase() === docName.toLowerCase());
         if (!doc) {
           doc = { id: generateId(), name: docName };
           state.docs.push(doc);
         }
         patient.docId = doc.id;
       }
-      
+
       // Handle center
-      const centerName = getValue('centerName');
+      const centerName = cleanString(getValue('centerName'));
       if (centerName) {
-        let center = state.centers.find(c => c.name === centerName);
+        let center = state.centers.find(c => c.name.toLowerCase() === centerName.toLowerCase());
         if (!center) {
           center = { id: generateId(), name: centerName };
           state.centers.push(center);
         }
         patient.centerId = center.id;
       }
-      
+
       // Handle protocol
-      const protoName = getValue('protoName');
+      const protoName = cleanString(getValue('protoName'));
       if (protoName) {
-        let proto = state.protos.find(p => p.name === protoName);
+        let proto = state.protos.find(p => p.name.toLowerCase() === protoName.toLowerCase());
         if (!proto) {
           proto = { id: generateId(), name: protoName };
           state.protos.push(proto);
         }
         patient.protoId = proto.id;
       }
-      
+
       // Calculate cycle from renewal date
       if (patient.renewalDate) {
         const cycleInfo = getCycleFromDate(patient.renewalDate);
@@ -8494,7 +8622,7 @@ function executeCSVImport() {
           patient.currentCycle = `C${cycleInfo.cycle}-${cycleInfo.year}`;
         }
       }
-      
+
       // Add patient if valid
       if (patient.lastName || patient.firstName) {
         state.patients.push(patient);
@@ -8504,80 +8632,146 @@ function executeCSVImport() {
       errors.push(`Ligne ${i + 2}: ${err.message}`);
     }
   }
-  
+
   // Save and refresh
   saveDB();
   render();
-  
+
   // Show results
   showModal(false, 'csvImportModal');
-  
+
   let message = `✅ ${imported} patient(s) importé(s)`;
-  if (errors.length > 0) {
-    message += `\n⚠️ ${errors.length} erreur(s)`;
+  if (skipped > 0) {
+    message += ` | ⏭️ ${skipped} ignoré(s)`;
   }
-  showToast(message, imported > 0 ? 'success' : 'warning');
+  if (errors.length > 0) {
+    message += ` | ❌ ${errors.length} erreur(s)`;
+    console.error('Erreurs d\'import:', errors);
+  }
+  if (warnings.length > 0) {
+    message += ` | ⚠️ ${warnings.length} avertissement(s)`;
+    console.warn('Avertissements d\'import:', warnings);
+  }
+
+  showToast(message, imported > 0 ? 'success' : (errors.length > 0 ? 'error' : 'warning'));
+
+  // Show detailed results if there are errors or warnings
+  if (errors.length > 0 || warnings.length > 0) {
+    setTimeout(() => {
+      let detailMessage = '';
+      if (errors.length > 0) {
+        detailMessage += 'ERREURS:\n' + errors.slice(0, 5).join('\n');
+        if (errors.length > 5) detailMessage += `\n... et ${errors.length - 5} autre(s) erreur(s)`;
+      }
+      if (warnings.length > 0) {
+        if (detailMessage) detailMessage += '\n\n';
+        detailMessage += 'AVERTISSEMENTS:\n' + warnings.slice(0, 5).join('\n');
+        if (warnings.length > 5) detailMessage += `\n... et ${warnings.length - 5} autre(s) avertissement(s)`;
+      }
+      if (confirm(detailMessage + '\n\nVoir la console pour plus de détails ?')) {
+        console.log('=== RAPPORT D\'IMPORT DÉTAILLÉ ===');
+        if (errors.length > 0) {
+          console.error('Erreurs:', errors);
+        }
+        if (warnings.length > 0) {
+          console.warn('Avertissements:', warnings);
+        }
+      }
+    }, 500);
+  }
 }
 
 function convertDateFormat(dateStr) {
   if (!dateStr) return '';
-  
+
   // Nettoyer la chaîne
   dateStr = String(dateStr).trim();
-  
+  if (!dateStr) return '';
+
   // Gérer les dates au format ISO avec heures (ex: "2025-11-01 00:00:00")
   if (dateStr.includes(' ')) {
     dateStr = dateStr.split(' ')[0]; // Prendre seulement la partie date
   }
-  
+
   // Gérer les nombres (format Excel : nombre de jours depuis 1900-01-01)
   const asNumber = parseFloat(dateStr);
   if (!isNaN(asNumber) && asNumber > 1000 && asNumber < 100000) {
     // C'est probablement un nombre de jours Excel
     const excelEpoch = new Date(1899, 11, 30); // Excel compte à partir du 30/12/1899
     const date = new Date(excelEpoch.getTime() + asNumber * 24 * 60 * 60 * 1000);
-    if (!isNaN(date.getTime())) {
+    if (!isNaN(date.getTime()) && isValidDate(date)) {
       return formatDateFR(date);
     }
   }
-  
+
   // Try different date formats
   const formats = [
-    /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/, // DD/MM/YYYY or DD-MM-YYYY
-    /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/,   // YYYY-MM-DD
-    /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})$/    // DD/MM/YY
+    /^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/, // DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
+    /^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})$/,   // YYYY-MM-DD or YYYY.MM.DD
+    /^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2})$/    // DD/MM/YY
   ];
-  
+
   for (const format of formats) {
     const match = dateStr.match(format);
     if (match) {
       let day, month, year;
-      
+
       if (format === formats[0]) {
-        day = match[1].padStart(2, '0');
-        month = match[2].padStart(2, '0');
-        year = match[3].length === 2 ? '20' + match[3] : match[3];
+        day = parseInt(match[1]);
+        month = parseInt(match[2]);
+        year = match[3].length === 2 ? parseInt('20' + match[3]) : parseInt(match[3]);
       } else if (format === formats[1]) {
-        year = match[1];
-        month = match[2].padStart(2, '0');
-        day = match[3].padStart(2, '0');
+        year = parseInt(match[1]);
+        month = parseInt(match[2]);
+        day = parseInt(match[3]);
       } else {
-        day = match[1].padStart(2, '0');
-        month = match[2].padStart(2, '0');
-        year = '20' + match[3];
+        day = parseInt(match[1]);
+        month = parseInt(match[2]);
+        year = parseInt('20' + match[3]);
       }
-      
-      return `${day}/${month}/${year}`;
+
+      // Validate the date components
+      if (month < 1 || month > 12) {
+        continue; // Invalid month, try next format
+      }
+
+      if (day < 1 || day > 31) {
+        continue; // Invalid day, try next format
+      }
+
+      // Check if it's a valid date (e.g., not 31/02/2025)
+      const testDate = new Date(year, month - 1, day);
+      if (testDate.getDate() !== day || testDate.getMonth() !== month - 1 || testDate.getFullYear() !== year) {
+        continue; // Invalid date
+      }
+
+      // Check year is reasonable (between 1900 and 2100)
+      if (year < 1900 || year > 2100) {
+        continue;
+      }
+
+      return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
     }
   }
-  
+
   // Try parsing as a Date object
   const date = new Date(dateStr);
-  if (!isNaN(date.getTime())) {
+  if (!isNaN(date.getTime()) && isValidDate(date)) {
     return formatDateFR(date);
   }
-  
-  return dateStr; // Return as is if no format matches
+
+  return ''; // Return empty string if no valid format matches
+}
+
+// Helper function to validate dates
+function isValidDate(date) {
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
+    return false;
+  }
+
+  const year = date.getFullYear();
+  // Accept dates between 1900 and 2100
+  return year >= 1900 && year <= 2100;
 }
 
 // ===== CSV Import Advanced Functions =====
