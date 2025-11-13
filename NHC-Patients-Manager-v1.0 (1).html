@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NHC Patients Manager — Gestion Patients v1.0</title>
+<title>NHC Patients Manager — Gestion Patients v1.1.0</title>
 <style>
 /* ===== Design System Variables ===== */
 :root {
@@ -3246,23 +3246,31 @@ body {
           <h3 class="card-title">À propos de NHC Patients Manager</h3>
         </div>
         <div class="card-body">
-          <h4>Version 1.0</h4>
-          <p class="text-muted mt-2">Première version de l'application de gestion des patients avec fonctionnalités complètes :</p>
+          <h4>Version 1.1.0</h4>
+          <p class="text-muted mt-2"><strong>🆕 Nouveautés de la version 1.1.0 :</strong></p>
+          <ul class="mt-2" style="background: rgba(59, 130, 246, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <li>🚀 <strong>Système de mise à jour amélioré</strong> : Support changement de nom de fichier via version.json</li>
+            <li>✅ Détection automatique des nouvelles versions même si le fichier change de nom (v1.0 → v2.0)</li>
+            <li>📝 Affichage des notes de version lors des mises à jour</li>
+            <li>🔧 Filtrage complet des patients archivés dans toutes les vues (ordonnances, cycles, statistiques)</li>
+            <li>🐛 Correction : les patients archivés n'apparaissent plus dans les ordonnances manquantes si archivés avant la date de renouvellement</li>
+          </ul>
+
+          <p class="text-muted mt-3"><strong>Fonctionnalités principales :</strong></p>
           <ul class="mt-2">
-            <li>👥 Gestion complète des patients</li>
-            <li>📋 Gestion des ordonnances et cycles</li>
-            <li>🔄 Planification et suivi des switchs</li>
-            <li>📅 Gestion des rendez-vous</li>
-            <li>📊 Tableau de bord avec statistiques</li>
-            <li>📥 Import/Export CSV intelligent</li>
-            <li>📄 Export Excel avec toutes les données</li>
-            <li>📕 Export PDF groupé par médecin</li>
+            <li>👥 Gestion complète des patients (actifs, arrêts temporaires/définitifs)</li>
+            <li>📋 Gestion des ordonnances et cycles de renouvellement</li>
+            <li>🔄 Planification et suivi des switchs de pompes</li>
+            <li>📅 Gestion des rendez-vous avec rappels</li>
+            <li>📊 Tableau de bord avec statistiques en temps réel</li>
+            <li>📥 Import/Export CSV intelligent avec détection automatique</li>
+            <li>📄 Export Excel et PDF groupé par médecin</li>
             <li>📚 Référentiels (Protocoles, Médecins, Centres)</li>
-            <li>🔍 Recherche avancée</li>
+            <li>🔍 Recherche et filtres avancés</li>
             <li>📜 Historique des modifications patients</li>
-            <li>🔄 Système de mise à jour intégré</li>
+            <li>🔄 Système de mise à jour automatique via GitHub</li>
             <li>🌙 Mode sombre/clair</li>
-            <li>💾 Sauvegarde automatique locale</li>
+            <li>💾 Sauvegarde automatique locale avec backup</li>
             <li>📱 Compatible mobile/tablette/desktop</li>
           </ul>
           <p class="text-muted mt-3">© 2024 NHC Patients Manager - Tous droits réservés</p>
@@ -11000,7 +11008,7 @@ function loadScript(src) {
 }
 
 // ===== Update System =====
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.0';
 const UPDATE_KEY = 'nhc-care-update';
 const UPDATE_HISTORY_KEY = 'nhc-care-update-history';
 const GITHUB_CONFIG_KEY = 'nhc-github-config';
