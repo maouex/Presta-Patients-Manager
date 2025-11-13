@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "fileName": "NHC-Patients-Manager-v1.0 (1).html",
+  "downloadUrl": "https://raw.githubusercontent.com/maouex/NHC-Patients-Manager/main/NHC-Patients-Manager-v1.0%20(1).html",
+  "releaseDate": "2025-01-13",
+  "releaseNotes": {
+    "fr": [
+      "✨ Première version stable",
+      "🔧 Filtrage complet des patients archivés",
+      "📋 Gestion des ordonnances et renouvellements",
+      "🔄 Système de mise à jour automatique"
+    ]
+  },
+  "minVersion": "1.0.0",
+  "checksum": ""
+}
