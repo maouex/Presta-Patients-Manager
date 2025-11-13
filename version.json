@@ -1,15 +1,15 @@
 {
-  "version": "1.1.5",
+  "version": "1.1.6",
   "fileName": "NHC-Patients-Manager-v1.0 (1).html",
   "downloadUrl": "https://raw.githubusercontent.com/maouex/NHC-Patients-Manager/main/NHC-Patients-Manager-v1.0%20(1).html",
   "releaseDate": "2025-01-13",
   "releaseNotes": {
     "fr": [
-      "🔧 CORRECTION CRITIQUE: Désactivation du File System Access API",
-      "✅ Utilisation exclusive de la méthode localStorage (plus fiable)",
-      "🎯 La mise à jour s'applique maintenant VRAIMENT après rechargement",
-      "📦 Simplification du système AUTO-UPDATE avec document.write",
-      "💾 Plus de confusion avec les fichiers sauvegardés"
+      "🎯 SOLUTION DÉFINITIVE: Mise à jour PERMANENTE via localStorage",
+      "✅ Le système vérifie À CHAQUE CHARGEMENT s'il y a une mise à jour stockée",
+      "🔄 Plus besoin de flag temporaire - la mise à jour persiste automatiquement",
+      "💾 Ouvrez toujours le même fichier, la mise à jour s'applique à chaque fois",
+      "🚀 Système AUTO-UPDATE 100% fonctionnel et testé"
     ]
   },
   "minVersion": "1.0.0",
