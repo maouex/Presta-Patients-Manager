@@ -4180,7 +4180,18 @@ function formatCycleLabel(renewalDate) {
 function getPatientsByCycle(cycle, year) {
   return state.patients.filter(p => {
     const cycleInfo = getCycleFromDate(p.renewalDate);
-    return cycleInfo && cycleInfo.cycle === cycle && cycleInfo.year === year;
+    if (!cycleInfo || cycleInfo.cycle !== cycle || cycleInfo.year !== year) return false;
+
+    // Exclure les patients archivés dont la date de renouvellement est ultérieure à la date d'archivage
+    if ((p.status === 'temporary_pause' || p.status === 'permanent_pause') && p.pausedAt) {
+      const renewalDate = parseDate(p.renewalDate);
+      const pausedDate = new Date(p.pausedAt);
+      if (renewalDate && renewalDate > pausedDate) {
+        return false;
+      }
+    }
+
+    return true;
   });
 }
 
@@ -4286,15 +4297,13 @@ function renderDashboard() {
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
-  
+
   // Filter active patients only
   const activePatients = state.patients.filter(p => !p.status || p.status === 'active');
-  
+
   // ===== KPIs Principaux =====
-  const renews30 = activePatients.filter(p => {
-    const days = daysUntilRenewal(p.renewalDate);
-    return days !== null && days <= 30 && days >= 0;
-  });
+  // Utiliser getUpcomingRenewals qui gère déjà le filtrage des patients archivés
+  const renews30 = getUpcomingRenewals(30);
   
   const avgScore = activePatients.length > 0 
     ? Math.round(activePatients.reduce((sum, p) => sum + qScore(p), 0) / activePatients.length)
@@ -5090,7 +5099,18 @@ function renderOrdos() {
   const upcoming = getUpcomingRenewals(30);
   const validOrdos = state.patients.filter(p => {
     const days = daysUntilRenewal(p.renewalDate);
-    return days !== null && days > 30;
+    if (days === null || days <= 30) return false;
+
+    // Exclure les patients archivés dont la date de renouvellement est ultérieure à la date d'archivage
+    if ((p.status === 'temporary_pause' || p.status === 'permanent_pause') && p.pausedAt) {
+      const renewalDate = parseDate(p.renewalDate);
+      const pausedDate = new Date(p.pausedAt);
+      if (renewalDate && renewalDate > pausedDate) {
+        return false;
+      }
+    }
+
+    return true;
   });
   
   byId('currentCycleRenewals').textContent = currentCyclePatients.length;
