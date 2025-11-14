@@ -1,18 +1,18 @@
 {
-  "version": "1.1.9",
+  "version": "1.2.0",
   "fileName": "NHC-Patients-Manager-v1.0 (1).html",
   "downloadUrl": "https://raw.githubusercontent.com/maouex/NHC-Patients-Manager/main/NHC-Patients-Manager-v1.0%20(1).html",
   "releaseDate": "2025-01-14",
   "releaseNotes": {
     "fr": [
-      "🧪 Version de TEST v1.1.9",
-      "✅ Test du nouveau système de mise à jour IndexedDB",
-      "🔐 Test de la vérification SHA-256",
-      "📦 Test du système de backup automatique",
-      "🔄 Test du rollback",
-      "🎯 Si vous voyez ce message, le système fonctionne parfaitement !"
+      "🐛 FIX CRITIQUE : Mise à jour maintenant persistante après rechargement !",
+      "✅ Correction du bug Blob URL qui ne survivait pas au reload",
+      "🔄 Utilisation de document.write() pour remplacement permanent",
+      "🎯 La version installée reste active même après F5 ou fermeture",
+      "📦 Système IndexedDB + SHA-256 maintenant 100% fonctionnel",
+      "🚀 Testé et validé : mise à jour stable et fiable"
     ]
   },
   "minVersion": "1.0.0",
-  "checksum": "52c2905b19adfea5d2877784ea5165459906ea4e5a258255563b6fcdc485aad5"
+  "checksum": "5d85164b497817564aa649b4db2b366859cdf9380dacace0714a40e29d196961"
 }

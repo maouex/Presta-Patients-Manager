@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NHC Patients Manager — Gestion Patients v1.1.9</title>
+<title>NHC Patients Manager — Gestion Patients v1.2.0</title>
 <style>
 /* ===== Design System Variables ===== */
 :root {
@@ -3904,26 +3904,14 @@ body {
           console.log('✅ Intégrité vérifiée');
         }
 
-        // Appliquer la mise à jour via Blob URL (plus sûr que document.write)
-        try {
-          const blob = new Blob([activeUpdate.htmlContent], { type: 'text/html' });
-          const blobUrl = URL.createObjectURL(blob);
+        // Appliquer la mise à jour en remplaçant le document
+        console.log('✅ Application de la mise à jour...');
 
-          console.log('✅ Redirection vers la version mise à jour...');
-
-          // Stocker un marqueur pour éviter les boucles infinies
-          sessionStorage.setItem('nhc-update-applied', activeUpdate.version);
-
-          // Redirection vers la version mise à jour
-          window.location.replace(blobUrl);
-
-        } catch (error) {
-          console.error('❌ Erreur lors de la création du Blob URL:', error);
-          // Fallback vers méthode directe
-          document.open();
-          document.write(activeUpdate.htmlContent);
-          document.close();
-        }
+        // Utiliser document.write pour remplacer complètement le contenu
+        // C'est la SEULE méthode qui fonctionne de manière persistante
+        document.open();
+        document.write(activeUpdate.htmlContent);
+        document.close();
 
         db.close();
         return; // Stop execution
@@ -11125,7 +11113,7 @@ function loadScript(src) {
 }
 
 // ===== NOUVEAU SYSTÈME DE MISE À JOUR - IndexedDB + SHA-256 =====
-const APP_VERSION = '1.1.9';
+const APP_VERSION = '1.2.0';
 const GITHUB_CONFIG_KEY = 'nhc-github-config';
 const DB_NAME = 'NHC_UpdateManager';
 const DB_VERSION = 1;
