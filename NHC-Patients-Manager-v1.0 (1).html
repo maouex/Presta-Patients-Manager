@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NHC Patients Manager — Gestion Patients v1.4.0</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <style>
 /* ===== Design System Variables ===== */
 :root {
@@ -2011,6 +2013,81 @@ body {
     font-size: 0.8rem;
   }
 }
+
+/* ===== Prescription Templates Styles ===== */
+.duration-option {
+  cursor: pointer;
+  display: block;
+}
+
+.duration-option input[type="radio"] {
+  display: none;
+}
+
+.duration-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: var(--transition);
+  text-align: center;
+  min-height: 60px;
+}
+
+.duration-option:hover .duration-card {
+  border-color: var(--primary);
+  background: var(--bg-secondary);
+}
+
+.duration-option input[type="radio"]:checked + .duration-card {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.template-item {
+  padding: 1rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: var(--transition);
+}
+
+.template-item:hover {
+  border-color: var(--primary);
+  background: var(--bg-secondary);
+}
+
+.template-item-info {
+  flex: 1;
+}
+
+.template-item-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.template-item-proto {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.template-item-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 </style>
 <!-- SheetJS library for Excel file support -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -2834,6 +2911,33 @@ body {
             <div id="protosList"></div>
           </div>
         </div>
+
+        <div class="card">
+          <div class="card-header" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); color: white;">
+            <h3 class="card-title">📄 Templates d'Ordonnances</h3>
+            <span class="badge" style="background: white; color: var(--secondary);" id="countTemplates">0</span>
+          </div>
+          <div class="card-body">
+            <div style="margin-bottom: 1rem; padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius); border: 1px solid var(--border);">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <svg width="20" height="20" fill="currentColor" style="color: var(--info);" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                <strong style="color: var(--info);">Gestion des templates</strong>
+              </div>
+              <p style="font-size: 14px; color: var(--text-secondary); margin: 0;">
+                Liez vos templates d'ordonnances aux protocoles pour une génération automatique. Uploadez vos documents Word (.docx) ou utilisez le template par défaut.
+              </p>
+            </div>
+
+            <button class="btn btn-primary" onclick="openTemplateUploadModal()" style="width: 100%; margin-bottom: 1rem;">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              Uploader un template
+            </button>
+
+            <div id="templatesList"></div>
+          </div>
+        </div>
       </div>
     </section>
     
@@ -3375,10 +3479,18 @@ body {
     </div>
     
     <div class="modal-footer">
-      <button class="btn btn-warning hidden" id="btnChangeStatus" style="background: #f59e0b; margin-right: auto;">
-        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path></svg>
-        Changer statut
-      </button>
+      <div style="display: flex; gap: 0.5rem; margin-right: auto;">
+        <button class="btn btn-warning hidden" id="btnChangeStatus" style="background: #f59e0b;">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path></svg>
+          Changer statut
+        </button>
+        <button class="btn hidden" id="btnGeneratePrescription" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); color: white;" onclick="openGeneratePrescriptionModal()">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd"></path>
+          </svg>
+          Générer Ordonnance
+        </button>
+      </div>
       <button class="btn btn-danger hidden" id="btnDeletePatient">Supprimer</button>
       <button class="btn btn-secondary" onclick="document.getElementById('patientModal').classList.remove('active')">Annuler</button>
       <button class="btn btn-primary" id="btnSavePatient">Enregistrer</button>
@@ -4073,6 +4185,170 @@ body {
   </div>
 </div>
 
+<!-- Template Upload Modal -->
+<div class="modal" id="templateUploadModal">
+  <div class="modal-content" style="max-width: 700px;">
+    <div class="modal-header">
+      <h2 class="modal-title">📄 Ajouter un Template d'Ordonnance</h2>
+      <button class="modal-close" onclick="showModal(false, 'templateUploadModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nom du template</label>
+        <input type="text" class="form-input" id="templateName" placeholder="Ex: Ordonnance CPAP Standard">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Protocole associé</label>
+        <select class="form-input" id="templateProto">
+          <option value="">Sélectionner un protocole...</option>
+        </select>
+        <small class="text-muted">Ce template sera utilisé automatiquement pour ce protocole</small>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Type de template</label>
+        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="radio" name="templateType" value="default" checked onchange="toggleTemplateUpload()">
+            <span>Template par défaut</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="radio" name="templateType" value="upload" onchange="toggleTemplateUpload()">
+            <span>Uploader un document</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="uploadSection" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">Document Word (.docx)</label>
+          <input type="file" class="form-input" id="templateFile" accept=".docx,.doc" onchange="handleTemplateFileUpload(event)">
+          <small class="text-muted">Uploadez votre ordonnance au format Word</small>
+        </div>
+        <div id="filePreview" style="display: none; padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius); margin-top: 1rem;">
+          <strong>Aperçu du fichier :</strong>
+          <div id="filePreviewContent" style="margin-top: 0.5rem; font-size: 14px; color: var(--text-secondary);"></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius); border-left: 4px solid var(--info);">
+        <strong style="color: var(--info);">ℹ️ Champs automatiques</strong>
+        <p style="font-size: 14px; color: var(--text-secondary); margin: 0.5rem 0 0 0;">
+          Les champs suivants seront remplis automatiquement : Nom patient, Date de naissance, Médecin, Date début, Date fin, Durée, Protocole/Matériel
+        </p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="showModal(false, 'templateUploadModal')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveTemplate()">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z"></path>
+        </svg>
+        Enregistrer
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Generate Prescription Modal -->
+<div class="modal" id="generatePrescriptionModal">
+  <div class="modal-content" style="max-width: 650px;">
+    <div class="modal-header">
+      <h2 class="modal-title">📋 Générer une Ordonnance</h2>
+      <button class="modal-close" onclick="showModal(false, 'generatePrescriptionModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Patient Info Card -->
+      <div style="padding: 1.5rem; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; border-radius: var(--radius); margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+          <svg width="40" height="40" fill="white" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+          </svg>
+          <div>
+            <h3 id="prescPatientName" style="margin: 0; font-size: 1.5rem;">Patient</h3>
+            <p id="prescPatientDob" style="margin: 0; opacity: 0.9;">Date de naissance</p>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; font-size: 0.9rem;">
+          <div>
+            <strong>Médecin :</strong> <span id="prescDoctor">-</span>
+          </div>
+          <div>
+            <strong>Protocole :</strong> <span id="prescProtocol">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Template Selection -->
+      <div class="form-group">
+        <label class="form-label">Template d'ordonnance</label>
+        <select class="form-input" id="prescTemplateSelect">
+          <option value="">Sélectionner un template...</option>
+        </select>
+        <small class="text-muted" id="prescTemplateHint"></small>
+      </div>
+
+      <!-- Duration -->
+      <div class="form-group">
+        <label class="form-label">Durée de l'ordonnance</label>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+          <label class="duration-option">
+            <input type="radio" name="prescDuration" value="3" checked>
+            <span class="duration-card">3 mois</span>
+          </label>
+          <label class="duration-option">
+            <input type="radio" name="prescDuration" value="6">
+            <span class="duration-card">6 mois</span>
+          </label>
+          <label class="duration-option">
+            <input type="radio" name="prescDuration" value="9">
+            <span class="duration-card">9 mois</span>
+          </label>
+          <label class="duration-option">
+            <input type="radio" name="prescDuration" value="12">
+            <span class="duration-card">12 mois</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Start Date -->
+      <div class="form-group">
+        <label class="form-label">Date de début</label>
+        <input type="date" class="form-input" id="prescStartDate" onchange="updatePrescEndDate()">
+      </div>
+
+      <!-- End Date (Auto-calculated) -->
+      <div class="form-group">
+        <label class="form-label">Date de fin (calculée automatiquement)</label>
+        <input type="date" class="form-input" id="prescEndDate" readonly style="background: var(--bg-secondary);">
+      </div>
+
+      <!-- Update Renewal Date Option -->
+      <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius);">
+        <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+          <input type="checkbox" id="prescUpdateRenewal" checked style="width: 18px; height: 18px;">
+          <div>
+            <strong>Mettre à jour la date de renouvellement du patient</strong>
+            <p style="font-size: 14px; color: var(--text-secondary); margin: 0.25rem 0 0 0;">
+              La date de fin de l'ordonnance sera enregistrée comme date de renouvellement dans la fiche patient
+            </p>
+          </div>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="showModal(false, 'generatePrescriptionModal')">Annuler</button>
+      <button class="btn btn-success" onclick="generatePrescriptionPDF()">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"></path>
+        </svg>
+        Générer l'ordonnance PDF
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -4236,7 +4512,8 @@ let state = {
   centers: [],
   protos: [],
   switches: [],
-  appointments: []
+  appointments: [],
+  prescriptionTemplates: []
 };
 
 let currentPatientId = null;
@@ -4380,6 +4657,13 @@ function generateId() {
 
 function byId(id) {
   return document.getElementById(id);
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 function qsEl(selector) {
@@ -5852,7 +6136,10 @@ function renderCatalogs() {
         `).join('')
       : '<p class="text-center text-muted">Aucun protocole</p>';
   }
-  
+
+  // Templates
+  renderTemplates();
+
   updateCounters();
 }
 
@@ -5933,6 +6220,491 @@ function addProto() {
   renderCatalogs();
   input.value = '';
   showToast('Protocole ajouté', 'success');
+}
+
+// ===== Prescription Templates Functions =====
+
+// Global variable to store uploaded file data
+let uploadedTemplateData = null;
+
+function renderTemplates() {
+  const list = byId('templatesList');
+  const count = byId('countTemplates');
+
+  if (!list || !count) return;
+
+  const templates = state.prescriptionTemplates || [];
+  count.textContent = templates.length;
+
+  if (templates.length === 0) {
+    list.innerHTML = '<div class="text-muted" style="text-align: center; padding: 2rem;">Aucun template d\'ordonnance. Créez-en un pour commencer.</div>';
+    return;
+  }
+
+  list.innerHTML = templates.map(t => {
+    const proto = state.protos.find(p => p.id === t.protoId);
+    const protoName = proto ? proto.name : 'Aucun protocole associé';
+    const typeLabel = t.type === 'default' ? '📄 Template par défaut' : '📎 Document uploadé';
+
+    return `
+      <div class="template-item">
+        <div class="template-item-info">
+          <div class="template-item-name">${escapeHtml(t.name)}</div>
+          <div class="template-item-proto">
+            ${typeLabel} • Protocole: ${escapeHtml(protoName)}
+          </div>
+        </div>
+        <div class="template-item-actions">
+          <button class="btn btn-sm btn-secondary" onclick="editTemplate('${t.id}')" title="Modifier">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+              <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="deleteTemplate('${t.id}')" title="Supprimer">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openTemplateUploadModal() {
+  // Reset form
+  byId('templateName').value = '';
+  byId('templateProto').value = '';
+  byId('templateFile').value = '';
+  uploadedTemplateData = null;
+
+  // Reset radio buttons
+  document.querySelector('input[name="templateType"][value="default"]').checked = true;
+  toggleTemplateUpload();
+
+  // Populate protocol select
+  const select = byId('templateProto');
+  select.innerHTML = '<option value="">Sélectionner un protocole...</option>' +
+    state.protos.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+
+  showModal(true, 'templateUploadModal');
+}
+
+function toggleTemplateUpload() {
+  const type = document.querySelector('input[name="templateType"]:checked').value;
+  const uploadSection = byId('uploadSection');
+  uploadSection.style.display = type === 'upload' ? 'block' : 'none';
+}
+
+async function handleTemplateFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const preview = byId('filePreview');
+  const previewContent = byId('filePreviewContent');
+
+  try {
+    // Read file as ArrayBuffer
+    const arrayBuffer = await file.arrayBuffer();
+
+    // Convert to base64 for storage
+    const base64 = arrayBufferToBase64(arrayBuffer);
+
+    // Try to extract text preview using mammoth
+    if (file.name.endsWith('.docx')) {
+      const result = await mammoth.extractRawText({arrayBuffer: arrayBuffer});
+      const textPreview = result.value.substring(0, 200) + (result.value.length > 200 ? '...' : '');
+
+      previewContent.innerHTML = `
+        <strong>Fichier:</strong> ${escapeHtml(file.name)} (${formatFileSize(file.size)})<br>
+        <strong>Aperçu:</strong><br>
+        <div style="margin-top: 0.5rem; padding: 0.5rem; background: white; border-radius: 4px; font-size: 12px; max-height: 100px; overflow-y: auto;">
+          ${escapeHtml(textPreview)}
+        </div>
+      `;
+    } else {
+      previewContent.innerHTML = `
+        <strong>Fichier:</strong> ${escapeHtml(file.name)} (${formatFileSize(file.size)})
+      `;
+    }
+
+    // Store file data
+    uploadedTemplateData = {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      data: base64
+    };
+
+    preview.style.display = 'block';
+  } catch (error) {
+    console.error('Error reading file:', error);
+    showToast('Erreur lors de la lecture du fichier', 'error');
+  }
+}
+
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+function base64ToArrayBuffer(base64) {
+  const binary = atob(base64);
+  const len = binary.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function saveTemplate() {
+  const name = byId('templateName').value.trim();
+  const protoId = byId('templateProto').value;
+  const type = document.querySelector('input[name="templateType"]:checked').value;
+
+  if (!name) {
+    showToast('Veuillez entrer un nom pour le template', 'warning');
+    return;
+  }
+
+  if (!protoId) {
+    showToast('Veuillez sélectionner un protocole', 'warning');
+    return;
+  }
+
+  if (type === 'upload' && !uploadedTemplateData) {
+    showToast('Veuillez uploader un document', 'warning');
+    return;
+  }
+
+  const template = {
+    id: generateId(),
+    name: name,
+    protoId: protoId,
+    type: type,
+    fileData: type === 'upload' ? uploadedTemplateData : null,
+    createdAt: new Date().toISOString()
+  };
+
+  if (!state.prescriptionTemplates) {
+    state.prescriptionTemplates = [];
+  }
+
+  state.prescriptionTemplates.push(template);
+  saveDB();
+  renderTemplates();
+  showModal(false, 'templateUploadModal');
+  showToast('Template créé avec succès', 'success');
+}
+
+function editTemplate(id) {
+  // For now, just show a message
+  showToast('Modification de template disponible prochainement', 'info');
+}
+
+function deleteTemplate(id) {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer ce template ?')) {
+    return;
+  }
+
+  state.prescriptionTemplates = state.prescriptionTemplates.filter(t => t.id !== id);
+  saveDB();
+  renderTemplates();
+  showToast('Template supprimé', 'success');
+}
+
+// ===== Generate Prescription Functions =====
+
+let currentPrescriptionPatientId = null;
+
+function openGeneratePrescriptionModal() {
+  if (!currentPatientId) {
+    showToast('Aucun patient sélectionné', 'error');
+    return;
+  }
+
+  const patient = state.patients.find(p => p.id === currentPatientId);
+  if (!patient) {
+    showToast('Patient introuvable', 'error');
+    return;
+  }
+
+  currentPrescriptionPatientId = currentPatientId;
+
+  // Fill patient info
+  byId('prescPatientName').textContent = fullName(patient);
+  byId('prescPatientDob').textContent = 'Né(e) le ' + formatDate(patient.dob);
+  byId('prescDoctor').textContent = docName(patient.docId) || '-';
+  byId('prescProtocol').textContent = protoName(patient.protoId) || '-';
+
+  // Populate template select
+  const templates = state.prescriptionTemplates || [];
+  const select = byId('prescTemplateSelect');
+
+  // Filter templates for this patient's protocol
+  const patientTemplates = templates.filter(t => t.protoId === patient.protoId);
+  const otherTemplates = templates.filter(t => t.protoId !== patient.protoId);
+
+  let html = '<option value="">Sélectionner un template...</option>';
+
+  if (patientTemplates.length > 0) {
+    html += '<optgroup label="Templates pour ce protocole">';
+    html += patientTemplates.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+    html += '</optgroup>';
+  }
+
+  if (otherTemplates.length > 0) {
+    html += '<optgroup label="Autres templates">';
+    html += otherTemplates.map(t => `<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+    html += '</optgroup>';
+  }
+
+  html += '<option value="default">Template par défaut (professionnel)</option>';
+
+  select.innerHTML = html;
+
+  // Auto-select first matching template or default
+  if (patientTemplates.length > 0) {
+    select.value = patientTemplates[0].id;
+  } else {
+    select.value = 'default';
+  }
+
+  // Set default start date to today
+  const today = new Date().toISOString().split('T')[0];
+  byId('prescStartDate').value = today;
+  updatePrescEndDate();
+
+  showModal(true, 'generatePrescriptionModal');
+}
+
+function updatePrescEndDate() {
+  const startDateInput = byId('prescStartDate');
+  const endDateInput = byId('prescEndDate');
+  const duration = parseInt(document.querySelector('input[name="prescDuration"]:checked').value);
+
+  if (!startDateInput.value) return;
+
+  const startDate = new Date(startDateInput.value);
+  const endDate = new Date(startDate);
+  endDate.setMonth(endDate.getMonth() + duration);
+
+  endDateInput.value = endDate.toISOString().split('T')[0];
+}
+
+// Update end date when duration changes
+document.addEventListener('DOMContentLoaded', () => {
+  const durationRadios = document.querySelectorAll('input[name="prescDuration"]');
+  durationRadios.forEach(radio => {
+    radio.addEventListener('change', updatePrescEndDate);
+  });
+});
+
+async function generatePrescriptionPDF() {
+  const patient = state.patients.find(p => p.id === currentPrescriptionPatientId);
+  if (!patient) {
+    showToast('Patient introuvable', 'error');
+    return;
+  }
+
+  const templateId = byId('prescTemplateSelect').value;
+  const startDate = byId('prescStartDate').value;
+  const endDate = byId('prescEndDate').value;
+  const duration = parseInt(document.querySelector('input[name="prescDuration"]:checked').value);
+  const updateRenewal = byId('prescUpdateRenewal').checked;
+
+  if (!templateId) {
+    showToast('Veuillez sélectionner un template', 'warning');
+    return;
+  }
+
+  if (!startDate || !endDate) {
+    showToast('Veuillez sélectionner les dates', 'warning');
+    return;
+  }
+
+  try {
+    // Generate PDF based on template type
+    if (templateId === 'default') {
+      await generateDefaultPrescriptionPDF(patient, startDate, endDate, duration);
+    } else {
+      const template = state.prescriptionTemplates.find(t => t.id === templateId);
+      if (template && template.type === 'upload' && template.fileData) {
+        await generateFromUploadedTemplate(patient, template, startDate, endDate, duration);
+      } else {
+        await generateDefaultPrescriptionPDF(patient, startDate, endDate, duration);
+      }
+    }
+
+    // Update renewal date if checked
+    if (updateRenewal) {
+      patient.renewalDate = formatDateForDisplay(new Date(endDate));
+      saveDB();
+      renderPatients();
+      showToast('Date de renouvellement mise à jour', 'success');
+    }
+
+    showModal(false, 'generatePrescriptionModal');
+  } catch (error) {
+    console.error('Error generating prescription:', error);
+    showToast('Erreur lors de la génération de l\'ordonnance', 'error');
+  }
+}
+
+async function generateDefaultPrescriptionPDF(patient, startDate, endDate, duration) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p', 'mm', 'a4');
+
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const margin = 20;
+  let y = margin;
+
+  // Header - Medical letterhead
+  doc.setFillColor(59, 130, 246);
+  doc.rect(0, 0, pageWidth, 40, 'F');
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(24);
+  doc.setFont('helvetica', 'bold');
+  doc.text('ORDONNANCE MÉDICALE', pageWidth / 2, 20, { align: 'center' });
+
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  const doctor = state.docs.find(d => d.id === patient.docId);
+  const doctorName = doctor ? doctor.name : 'Dr. [Nom du médecin]';
+  doc.text(doctorName, pageWidth / 2, 30, { align: 'center' });
+
+  y = 50;
+  doc.setTextColor(0, 0, 0);
+
+  // Date
+  doc.setFontSize(10);
+  doc.text('Date: ' + formatDateForDisplay(new Date()), pageWidth - margin, y, { align: 'right' });
+  y += 15;
+
+  // Patient Information Box
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(margin, y, pageWidth - 2 * margin, 35, 3, 3, 'F');
+  doc.setDrawColor(226, 232, 240);
+  doc.roundedRect(margin, y, pageWidth - 2 * margin, 35, 3, 3, 'S');
+
+  y += 8;
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('PATIENT', margin + 5, y);
+
+  y += 7;
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Nom: ${fullName(patient)}`, margin + 5, y);
+
+  y += 6;
+  doc.text(`Date de naissance: ${formatDate(patient.dob)}  (${calculateAge(patient.dob)} ans)`, margin + 5, y);
+
+  y += 6;
+  doc.text(`Code patient: ${patient.patientCode || 'Non renseigné'}`, margin + 5, y);
+
+  y += 15;
+
+  // Prescription content
+  doc.setDrawColor(59, 130, 246);
+  doc.setLineWidth(0.5);
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 10;
+
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('PRESCRIPTION', margin, y);
+  y += 10;
+
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+
+  const protocol = state.protos.find(p => p.id === patient.protoId);
+  const protocolName = protocol ? protocol.name : '[Protocole]';
+
+  doc.text(`Je soussigné ${doctorName}, prescris à ${fullName(patient)} :`, margin, y);
+  y += 10;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.text(`• ${protocolName}`, margin + 10, y);
+  y += 10;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  doc.text(`Durée de validité: ${duration} mois`, margin + 10, y);
+  y += 7;
+  doc.text(`Du ${formatDateForDisplay(new Date(startDate))} au ${formatDateForDisplay(new Date(endDate))}`, margin + 10, y);
+  y += 15;
+
+  // Additional notes
+  if (patient.notes) {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'italic');
+    const notes = doc.splitTextToSize(`Observations: ${patient.notes}`, pageWidth - 2 * margin - 20);
+    doc.text(notes, margin + 10, y);
+    y += notes.length * 5 + 10;
+  }
+
+  y += 20;
+
+  // Center information
+  const center = state.centers.find(c => c.id === patient.centerId);
+  if (center) {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Centre de soins: ${center.name}`, margin, y);
+    y += 7;
+  }
+
+  // Signature section
+  y = pageHeight - 60;
+  doc.setDrawColor(226, 232, 240);
+  doc.line(margin, y, pageWidth - margin, y);
+  y += 10;
+
+  doc.setFontSize(10);
+  doc.text('Signature et cachet du médecin:', pageWidth - margin - 60, y);
+
+  // Footer
+  y = pageHeight - 20;
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 100);
+  doc.text('Document généré par NHC Patients Manager', pageWidth / 2, y, { align: 'center' });
+  doc.text(`Le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, pageWidth / 2, y + 4, { align: 'center' });
+
+  // Save PDF
+  const filename = `Ordonnance_${patient.lastName}_${patient.firstName}_${new Date().toISOString().split('T')[0]}.pdf`;
+  doc.save(filename);
+
+  showToast('Ordonnance générée avec succès!', 'success');
+}
+
+async function generateFromUploadedTemplate(patient, template, startDate, endDate, duration) {
+  // This would require more complex template processing
+  // For now, fall back to default template
+  showToast('Génération depuis template uploadé - Utilisation du template par défaut pour le moment', 'info');
+  await generateDefaultPrescriptionPDF(patient, startDate, endDate, duration);
+}
+
+function formatDateForDisplay(date) {
+  if (!date) return '';
+  if (typeof date === 'string') date = new Date(date);
+  return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 function renderStats() {
@@ -6507,24 +7279,25 @@ function newPatient() {
   byId('modalTitle').textContent = 'Nouveau patient';
   byId('btnDeletePatient').classList.add('hidden');
   byId('btnChangeStatus').classList.add('hidden');
-  
+  byId('btnGeneratePrescription').classList.add('hidden');
+
   // Reset form
   ['lastName', 'firstName', 'dob', 'email', 'phone', 'address', 'patientCode', 'notes'].forEach(id => {
     const el = byId(id);
     if (el) el.value = '';
   });
-  
+
   // Suggest current date + 4 months for new patient
   const today = new Date();
   today.setMonth(today.getMonth() + 4);
   byId('renewalDate').value = formatDateFR(today);
   updateCycleInfo();
-  
+
   ['docId', 'centerId', 'protoId'].forEach(id => {
     const el = byId(id);
     if (el) el.value = '';
   });
-  
+
   populateSelects();
   showModal(true);
 }
@@ -6743,6 +7516,7 @@ function openPatient(id) {
   byId('modalTitle').textContent = 'Modifier le patient';
   byId('btnDeletePatient').classList.remove('hidden');
   byId('btnChangeStatus').classList.remove('hidden');
+  byId('btnGeneratePrescription').classList.remove('hidden');
 
   // Populate selects FIRST so options are available
   populateSelects();
