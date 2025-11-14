@@ -6274,26 +6274,40 @@ function renderTemplates() {
 
 function openTemplateUploadModal() {
   // Reset form
-  byId('templateName').value = '';
-  byId('templateProto').value = '';
-  byId('templateFile').value = '';
+  const templateName = byId('templateName');
+  const templateProto = byId('templateProto');
+  const templateFile = byId('templateFile');
+  const filePreview = byId('filePreview');
+
+  if (templateName) templateName.value = '';
+  if (templateProto) templateProto.value = '';
+  if (templateFile) templateFile.value = '';
+  if (filePreview) filePreview.style.display = 'none';
   uploadedTemplateData = null;
 
   // Reset radio buttons
-  document.querySelector('input[name="templateType"][value="default"]').checked = true;
-  toggleTemplateUpload();
+  const defaultRadio = document.querySelector('input[name="templateType"][value="default"]');
+  if (defaultRadio) {
+    defaultRadio.checked = true;
+    toggleTemplateUpload();
+  }
 
   // Populate protocol select
-  const select = byId('templateProto');
-  select.innerHTML = '<option value="">Sélectionner un protocole...</option>' +
-    state.protos.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  if (templateProto) {
+    templateProto.innerHTML = '<option value="">Sélectionner un protocole...</option>' +
+      state.protos.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  }
 
   showModal(true, 'templateUploadModal');
 }
 
 function toggleTemplateUpload() {
-  const type = document.querySelector('input[name="templateType"]:checked').value;
+  const checkedRadio = document.querySelector('input[name="templateType"]:checked');
   const uploadSection = byId('uploadSection');
+
+  if (!checkedRadio || !uploadSection) return;
+
+  const type = checkedRadio.value;
   uploadSection.style.display = type === 'upload' ? 'block' : 'none';
 }
 
@@ -6494,24 +6508,18 @@ function openGeneratePrescriptionModal() {
 function updatePrescEndDate() {
   const startDateInput = byId('prescStartDate');
   const endDateInput = byId('prescEndDate');
-  const duration = parseInt(document.querySelector('input[name="prescDuration"]:checked').value);
+  const durationRadio = document.querySelector('input[name="prescDuration"]:checked');
 
+  if (!startDateInput || !endDateInput || !durationRadio) return;
   if (!startDateInput.value) return;
 
+  const duration = parseInt(durationRadio.value);
   const startDate = new Date(startDateInput.value);
   const endDate = new Date(startDate);
   endDate.setMonth(endDate.getMonth() + duration);
 
   endDateInput.value = endDate.toISOString().split('T')[0];
 }
-
-// Update end date when duration changes
-document.addEventListener('DOMContentLoaded', () => {
-  const durationRadios = document.querySelectorAll('input[name="prescDuration"]');
-  durationRadios.forEach(radio => {
-    radio.addEventListener('change', updatePrescEndDate);
-  });
-});
 
 async function generatePrescriptionPDF() {
   const patient = state.patients.find(p => p.id === currentPrescriptionPatientId);
@@ -12609,6 +12617,15 @@ function bindEvents() {
   byId('btnCheckUpdate')?.addEventListener('click', checkGithubUpdates);
   byId('btnDownloadUpdate')?.addEventListener('click', downloadGithubUpdate);
   byId('btnInstallUpdate')?.addEventListener('click', installGithubUpdate);
+
+  // Prescription duration change events
+  const durationRadios = document.querySelectorAll('input[name="prescDuration"]');
+  durationRadios.forEach(radio => {
+    radio.addEventListener('change', updatePrescEndDate);
+  });
+
+  // Prescription start date change event
+  byId('prescStartDate')?.addEventListener('change', updatePrescEndDate);
 }
 
 // ===== Legacy Functions =====
