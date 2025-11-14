@@ -8203,8 +8203,20 @@ function generatePDF(patients, comments) {
     const commentText = comments[patient.id] || '';
     const hasComment = commentText.length > 0;
 
-    // Compact patient height: 9mm per patient, 15mm if has comment (with proper spacing)
-    const patientHeight = hasComment ? 15 : 9;
+    // Calculate comment height dynamically based on text length
+    let commentHeight = 0;
+    let commentLines = [];
+    if (hasComment) {
+      doc.setFontSize(6);
+      // Calculate available width for comment (contentWidth - left margin - padding)
+      const commentWidth = contentWidth - 32;
+      commentLines = doc.splitTextToSize(`Note: ${commentText}`, commentWidth);
+      // Height: 3mm top padding + (number of lines * 2.5mm line height) + 3mm bottom padding
+      commentHeight = 3 + (commentLines.length * 2.5) + 3;
+    }
+
+    // Compact patient height: 9mm per patient + dynamic comment height
+    const patientHeight = 9 + commentHeight;
 
     // Check if we need a new page (leave 10mm margin at bottom)
     if (yPosition + patientHeight > pageHeight - margin) {
@@ -8317,18 +8329,18 @@ function generatePDF(patients, comments) {
 
     yPosition += 4;
 
-    // Comment if exists (on separate line, compact)
+    // Comment if exists (on separate line, full text with multiple lines if needed)
     if (hasComment) {
-      // Light background for better separation
+      // Light background for better separation (dynamic height)
       doc.setFillColor(252, 252, 253);
-      doc.rect(margin + 28, yPosition, contentWidth - 28, 5, 'F');
+      doc.rect(margin + 28, yPosition, contentWidth - 28, commentHeight, 'F');
 
       doc.setFontSize(6);
       doc.setTextColor(100, 116, 139);
       doc.setFont('helvetica', 'italic');
-      const commentShort = commentText.length > 140 ? commentText.substring(0, 140) + '...' : commentText;
-      doc.text(`Note: ${commentShort}`, margin + 30, yPosition + 3);
-      yPosition += 6; // More spacing to prevent note truncation
+      // Display full comment with line wrapping
+      doc.text(commentLines, margin + 30, yPosition + 3);
+      yPosition += commentHeight;
     }
 
     // Subtle separator line
