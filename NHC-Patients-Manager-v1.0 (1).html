@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NHC Patients Manager — Gestion Patients v1.2.1</title>
+<title>NHC Patients Manager — Gestion Patients v1.2.2</title>
 <style>
 /* ===== Design System Variables ===== */
 :root {
@@ -7415,26 +7415,89 @@ function exportToExcel() {
       sorted.sort((a, b) => (protoName(a.protoId) || 'ZZZ').localeCompare(protoName(b.protoId) || 'ZZZ'));
     }
 
-    // Créer le CSV avec BOM pour Excel
+    // Helper function to format date as DD/MM/YYYY
+    const formatDateForExcel = (dateStr) => {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return dateStr;
+    };
+
+    // Helper function to calculate age
+    const calculateAge = (dobStr) => {
+      if (!dobStr) return '';
+      const dob = parseDate(dobStr);
+      if (!dob) return '';
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const monthDiff = today.getMonth() - dob.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      return age;
+    };
+
+    // Créer le CSV avec BOM pour Excel et en-têtes améliorés
     const BOM = '\uFEFF';
-    let csv = BOM + 'Nom;Prénom;Date de naissance;Email;Téléphone;Adresse;Médecin;Centre;Matériel/Protocole;Date de renouvellement;Cycle;Notes\n';
+    let csv = BOM + '═══ IDENTITÉ ═══;;;;═══ CONTACT ═══;;═══ MÉDICAL ═══;;;;═══ RENOUVELLEMENT ═══;;;;;\n';
+    csv += 'Nom;Prénom;Date de naissance;Âge;Email;Téléphone;Adresse;Médecin traitant;Centre de soins;Matériel / Protocole;Date de renouvellement;Jours restants;Cycle;Statut;Indicateur;Notes\n';
 
     sorted.forEach(p => {
       const cycleInfo = getCycleFromDate(p.renewalDate);
       const cycleLabel = cycleInfo ? `${cycleInfo.name} ${cycleInfo.year}` : '';
 
+      // Get status and days remaining
+      const renewalDate = parseDate(p.renewalDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      let status = 'N/A';
+      let indicator = '—';
+      let daysRemaining = '';
+
+      if (renewalDate) {
+        const diffDays = Math.ceil((renewalDate - today) / (1000 * 60 * 60 * 24));
+        daysRemaining = diffDays;
+
+        if (diffDays < 0) {
+          status = 'Expiré';
+          indicator = '⚫ EXPIRÉ';
+        } else if (diffDays <= 7) {
+          status = 'Urgent';
+          indicator = '🔴 URGENT';
+        } else if (diffDays <= 30) {
+          status = 'Bientôt à renouveler';
+          indicator = '🟠 BIENTÔT';
+        } else {
+          status = 'Valide';
+          indicator = '🟢 VALIDE';
+        }
+      }
+
+      const age = calculateAge(p.dob);
+
       const row = [
+        // IDENTITÉ
         p.lastName || '',
         p.firstName || '',
-        p.dob || '',
+        formatDateForExcel(p.dob) || '',
+        age,
+        // CONTACT
         p.email || '',
         p.phone || '',
         p.address || '',
+        // MÉDICAL
         docName(p.docId) || '',
         centerName(p.centerId) || '',
         protoName(p.protoId) || '',
-        p.renewalDate || '',
+        // RENOUVELLEMENT
+        formatDateForExcel(p.renewalDate) || '',
+        daysRemaining,
         cycleLabel,
+        status,
+        indicator,
+        // NOTES
         (p.notes || '').replace(/"/g, '""').replace(/\n/g, ' ')
       ];
 
@@ -7688,46 +7751,89 @@ function executeAdvancedExport() {
     // Sort by name
     const sorted = [...filtered].sort((a, b) => fullName(a).localeCompare(fullName(b)));
 
-    // Créer le CSV avec BOM pour Excel
+    // Helper function to format date as DD/MM/YYYY
+    const formatDateForExcel = (dateStr) => {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return dateStr;
+    };
+
+    // Helper function to calculate age
+    const calculateAge = (dobStr) => {
+      if (!dobStr) return '';
+      const dob = parseDate(dobStr);
+      if (!dob) return '';
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const monthDiff = today.getMonth() - dob.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      return age;
+    };
+
+    // Créer le CSV avec BOM pour Excel et en-têtes améliorés
     const BOM = '\uFEFF';
-    let csv = BOM + 'Nom;Prénom;Date de naissance;Email;Téléphone;Adresse;Médecin;Centre;Matériel/Protocole;Date de renouvellement;Cycle;Statut;Notes\n';
+    let csv = BOM + '═══ IDENTITÉ ═══;;;;═══ CONTACT ═══;;═══ MÉDICAL ═══;;;;═══ RENOUVELLEMENT ═══;;;;;\n';
+    csv += 'Nom;Prénom;Date de naissance;Âge;Email;Téléphone;Adresse;Médecin traitant;Centre de soins;Matériel / Protocole;Date de renouvellement;Jours restants;Cycle;Statut;Indicateur;Notes\n';
 
     sorted.forEach(p => {
       const cycleInfo = getCycleFromDate(p.renewalDate);
       const cycleLabel = cycleInfo ? `${cycleInfo.name} ${cycleInfo.year}` : '';
 
-      // Get status
+      // Get status and days remaining
       const renewalDate = parseDate(p.renewalDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       let status = 'N/A';
+      let indicator = '—';
+      let daysRemaining = '';
 
       if (renewalDate) {
         const diffDays = Math.ceil((renewalDate - today) / (1000 * 60 * 60 * 24));
+        daysRemaining = diffDays;
+
         if (diffDays < 0) {
           status = 'Expiré';
+          indicator = '⚫ EXPIRÉ';
         } else if (diffDays <= 7) {
           status = 'Urgent';
+          indicator = '🔴 URGENT';
         } else if (diffDays <= 30) {
           status = 'Bientôt à renouveler';
+          indicator = '🟠 BIENTÔT';
         } else {
           status = 'Valide';
+          indicator = '🟢 VALIDE';
         }
       }
 
+      const age = calculateAge(p.dob);
+
       const row = [
+        // IDENTITÉ
         p.lastName || '',
         p.firstName || '',
-        p.dob || '',
+        formatDateForExcel(p.dob) || '',
+        age,
+        // CONTACT
         p.email || '',
         p.phone || '',
         p.address || '',
+        // MÉDICAL
         docName(p.docId) || '',
         centerName(p.centerId) || '',
         protoName(p.protoId) || '',
-        p.renewalDate || '',
+        // RENOUVELLEMENT
+        formatDateForExcel(p.renewalDate) || '',
+        daysRemaining,
         cycleLabel,
         status,
+        indicator,
+        // NOTES
         (p.notes || '').replace(/"/g, '""').replace(/\n/g, ' ')
       ];
 
@@ -11539,7 +11645,7 @@ function loadScript(src) {
 }
 
 // ===== NOUVEAU SYSTÈME DE MISE À JOUR - IndexedDB + SHA-256 =====
-const APP_VERSION = '1.2.1';
+const APP_VERSION = '1.2.2';
 const GITHUB_CONFIG_KEY = 'nhc-github-config';
 const DB_NAME = 'NHC_UpdateManager';
 const DB_VERSION = 1;
