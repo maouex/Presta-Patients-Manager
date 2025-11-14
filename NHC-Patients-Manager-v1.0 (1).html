@@ -3927,26 +3927,26 @@ body {
 
 <!-- Export Confirmation Modal -->
 <div class="modal" id="exportConfirmModal">
-  <div class="modal-content" style="max-width: 500px;">
+  <div class="modal-content" style="max-width: 700px; max-height: 85vh;">
     <div class="modal-header">
       <h2>Options d'export</h2>
       <button class="close-button" onclick="showModal(false, 'exportConfirmModal')">×</button>
     </div>
-    <div class="modal-body" style="text-align: center; padding: 30px;">
+    <div class="modal-body" style="text-align: center; padding: 30px; overflow-y: auto;">
       <div style="font-size: 48px; margin-bottom: 20px;">📝</div>
       <p style="font-size: 16px; margin-bottom: 30px; color: #64748b;">
         Souhaitez-vous ajouter des commentaires à chaque patient avant l'export ?
       </p>
       <div id="exportConfirmSummary" style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
       </div>
-      <div style="display: flex; gap: 10px; justify-content: center;">
-        <button class="btn btn-secondary" onclick="proceedToExport('csv')" style="flex: 1;">
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button class="btn btn-secondary" onclick="proceedToExport('csv')" style="flex: 1; min-width: 250px;">
           <svg style="width:18px;height:18px;margin-right:8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           Non, export CSV direct
         </button>
-        <button class="btn btn-primary" onclick="startPatientReview()" style="flex: 1;">
+        <button class="btn btn-primary" onclick="startPatientReview()" style="flex: 1; min-width: 250px;">
           <svg style="width:18px;height:18px;margin-right:8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -8203,8 +8203,20 @@ function generatePDF(patients, comments) {
     const commentText = comments[patient.id] || '';
     const hasComment = commentText.length > 0;
 
-    // Compact patient height: 9mm per patient, 15mm if has comment (with proper spacing)
-    const patientHeight = hasComment ? 15 : 9;
+    // Calculate comment height dynamically based on text length
+    let commentHeight = 0;
+    let commentLines = [];
+    if (hasComment) {
+      doc.setFontSize(6);
+      // Calculate available width for comment (contentWidth - left margin - padding)
+      const commentWidth = contentWidth - 32;
+      commentLines = doc.splitTextToSize(`Note: ${commentText}`, commentWidth);
+      // Height: 3mm top padding + (number of lines * 2.5mm line height) + 3mm bottom padding
+      commentHeight = 3 + (commentLines.length * 2.5) + 3;
+    }
+
+    // Compact patient height: 9mm per patient + dynamic comment height
+    const patientHeight = 9 + commentHeight;
 
     // Check if we need a new page (leave 10mm margin at bottom)
     if (yPosition + patientHeight > pageHeight - margin) {
@@ -8317,18 +8329,18 @@ function generatePDF(patients, comments) {
 
     yPosition += 4;
 
-    // Comment if exists (on separate line, compact)
+    // Comment if exists (on separate line, full text with multiple lines if needed)
     if (hasComment) {
-      // Light background for better separation
+      // Light background for better separation (dynamic height)
       doc.setFillColor(252, 252, 253);
-      doc.rect(margin + 28, yPosition, contentWidth - 28, 5, 'F');
+      doc.rect(margin + 28, yPosition, contentWidth - 28, commentHeight, 'F');
 
       doc.setFontSize(6);
       doc.setTextColor(100, 116, 139);
       doc.setFont('helvetica', 'italic');
-      const commentShort = commentText.length > 140 ? commentText.substring(0, 140) + '...' : commentText;
-      doc.text(`Note: ${commentShort}`, margin + 30, yPosition + 3);
-      yPosition += 6; // More spacing to prevent note truncation
+      // Display full comment with line wrapping
+      doc.text(commentLines, margin + 30, yPosition + 3);
+      yPosition += commentHeight;
     }
 
     // Subtle separator line
