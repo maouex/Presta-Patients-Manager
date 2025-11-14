@@ -1,20 +1,20 @@
 {
-  "version": "1.2.1",
+  "version": "1.2.2",
   "fileName": "NHC-Patients-Manager-v1.0 (1).html",
   "downloadUrl": "https://raw.githubusercontent.com/maouex/NHC-Patients-Manager/main/NHC-Patients-Manager-v1.0%20(1).html",
   "releaseDate": "2025-01-14",
   "releaseNotes": {
     "fr": [
-      "🎯 NOUVEAU : Export Excel avancé avec filtres multiples !",
-      "✅ Sélection multiple de médecins (ex: 2 médecins spécifiques)",
-      "✅ Sélection multiple de protocoles/matériels",
-      "✅ Sélection multiple de centres",
-      "✅ Filtrage par statut (Valide, Urgent, Expiré, etc.)",
-      "✅ Filtrage par période de renouvellement",
-      "📊 Résumé en temps réel du nombre de patients filtrés",
-      "💾 Export CSV avec colonne Statut ajoutée"
+      "✨ AMÉLIORATIONS : Export Excel beaucoup plus joli et lisible !",
+      "📋 En-têtes organisés par sections (IDENTITÉ, CONTACT, MÉDICAL, RENOUVELLEMENT)",
+      "📅 Dates au format français DD/MM/YYYY (plus lisible)",
+      "🎂 Nouvelle colonne : Âge calculé automatiquement",
+      "⏰ Nouvelle colonne : Jours restants avant expiration",
+      "🎨 Indicateurs visuels colorés : 🟢 VALIDE | 🟠 BIENTÔT | 🔴 URGENT | ⚫ EXPIRÉ",
+      "📊 Colonnes mieux organisées et regroupées logiquement",
+      "💯 Amélioration appliquée aux exports standard ET avancé"
     ]
   },
   "minVersion": "1.0.0",
-  "checksum": "8c8768796371d42680fde94b97df4572fc45c9faeb33565a2dcf59bbaf404bde"
+  "checksum": "2aa514441ca28d0fcc49488f755d49e5fb02fa553c3220d6d8fe11a1b41b446d"
 }
