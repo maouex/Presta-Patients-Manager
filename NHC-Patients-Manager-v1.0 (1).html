@@ -8934,13 +8934,7 @@ function fcoPopulateTemplates() {
   // Clear existing options except the first one
   select.innerHTML = '<option value="">Sélectionner un template...</option>';
 
-  // Add default template
-  const defaultOption = document.createElement('option');
-  defaultOption.value = 'default';
-  defaultOption.textContent = 'Template par défaut';
-  select.appendChild(defaultOption);
-
-  // Add uploaded templates
+  // Only add uploaded Word templates (not default PDF template)
   if (state.prescriptionTemplates && state.prescriptionTemplates.length > 0) {
     state.prescriptionTemplates.forEach(template => {
       const option = document.createElement('option');
@@ -8948,11 +8942,18 @@ function fcoPopulateTemplates() {
       option.textContent = template.name;
       select.appendChild(option);
     });
-  }
 
-  // Select first available template
-  if (select.options.length > 1) {
-    select.selectedIndex = 1;
+    // Select first available template
+    if (select.options.length > 1) {
+      select.selectedIndex = 1;
+    }
+  } else {
+    // Show message if no templates available
+    const noTemplateOption = document.createElement('option');
+    noTemplateOption.value = '';
+    noTemplateOption.textContent = 'Aucun template disponible - Veuillez en créer un';
+    noTemplateOption.disabled = true;
+    select.appendChild(noTemplateOption);
   }
 }
 
@@ -9603,11 +9604,7 @@ function apcStartConfiguration() {
   if (select) {
     select.innerHTML = '<option value="">Sélectionner un template...</option>';
 
-    const defaultOption = document.createElement('option');
-    defaultOption.value = 'default';
-    defaultOption.textContent = 'Template par défaut';
-    select.appendChild(defaultOption);
-
+    // Only add uploaded Word templates (not default PDF template)
     if (state.prescriptionTemplates && state.prescriptionTemplates.length > 0) {
       state.prescriptionTemplates.forEach(template => {
         const option = document.createElement('option');
@@ -9615,10 +9612,18 @@ function apcStartConfiguration() {
         option.textContent = template.name;
         select.appendChild(option);
       });
-    }
 
-    if (select.options.length > 1) {
-      select.selectedIndex = 1;
+      // Auto-select first template
+      if (select.options.length > 1) {
+        select.selectedIndex = 1;
+      }
+    } else {
+      // Show message if no templates available
+      const noTemplateOption = document.createElement('option');
+      noTemplateOption.value = '';
+      noTemplateOption.textContent = 'Aucun template disponible - Veuillez en créer un';
+      noTemplateOption.disabled = true;
+      select.appendChild(noTemplateOption);
     }
   }
 
@@ -9737,9 +9742,7 @@ async function apcGenerateAll() {
     try {
       // Find template
       let template = null;
-      if (config.templateId === 'default') {
-        template = 'default';
-      } else {
+      if (config.templateId !== 'default') {
         template = state.prescriptionTemplates.find(t => t.id === config.templateId);
         if (!template) {
           console.error('Template not found for', fullName(config.patient));
@@ -9752,20 +9755,23 @@ async function apcGenerateAll() {
         endDate: config.endDate
       };
 
-      const result = await fcoGenerateSingleOrdonnance(config.patient, template, prescConfig);
+      // Only generate if template has fileData (Word template)
+      if (template && template.fileData) {
+        const result = await fcoGenerateSingleOrdonnance(config.patient, template, prescConfig);
 
-      if (result) {
-        prescriptionPages.push({
-          data: result,
-          patient: fullName(config.patient)
-        });
+        if (result) {
+          prescriptionPages.push({
+            data: result,
+            patient: fullName(config.patient)
+          });
 
-        // Update renewal date if requested
-        if (config.updateRenewal) {
-          config.patient.renewalDate = config.endDate;
+          // Update renewal date if requested
+          if (config.updateRenewal) {
+            config.patient.renewalDate = formatDateForDisplay(new Date(config.endDate));
+          }
+
+          successCount++;
         }
-
-        successCount++;
       }
     } catch (error) {
       console.error('Error generating prescription for', fullName(config.patient), error);
@@ -9774,8 +9780,8 @@ async function apcGenerateAll() {
 
   // Save state if any renewal dates were updated
   if (apcState.prescriptions.some(c => c.updateRenewal)) {
-    saveState();
-    render();
+    saveDB();
+    renderPatients();
   }
 
   // Download prescriptions
@@ -9785,7 +9791,7 @@ async function apcGenerateAll() {
     // Download combined document
     await fcoCombineWordDocuments(prescriptionPages);
   } else {
-    showToast('Aucune ordonnance n\'a pu être générée', 'error');
+    showToast('Aucune ordonnance Word n\'a pu être générée', 'warning');
   }
 }
 
