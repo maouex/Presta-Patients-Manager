@@ -10,57 +10,78 @@
 <style>
 /* ===== Design System Variables ===== */
 :root {
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --primary-light: #60a5fa;
-  --secondary: #8b5cf6;
+  /* Modern turquoise/teal color scheme */
+  --primary: #14b8a6;
+  --primary-dark: #0d9488;
+  --primary-light: #2dd4bf;
+  --secondary: #06b6d4;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
-  --info: #06b6d4;
-  
+  --info: #3b82f6;
+
+  /* Background colors - lighter and more airy */
   --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
-  --bg-dark: #0f172a;
-  
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --bg-dark: #111827;
+
+  /* Text colors */
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
   --text-inverse: #ffffff;
-  
-  --border: #e2e8f0;
-  --border-light: #f1f5f9;
-  
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-  
-  --radius-sm: 0.375rem;
+
+  /* Border colors - very subtle */
+  --border: #e5e7eb;
+  --border-light: #f3f4f6;
+
+  /* Lighter shadows for clean modern look */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.08);
+
+  /* Border radius - 8px modern standard */
+  --radius-sm: 0.25rem;
   --radius: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.5rem;
   --radius-full: 9999px;
-  
+
+  /* Spacing system */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Dark Mode */
 [data-theme="dark"] {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
-  --bg-dark: #020617;
-  
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  
-  --border: #334155;
-  --border-light: #475569;
+  --bg-primary: #1f2937;
+  --bg-secondary: #111827;
+  --bg-tertiary: #374151;
+  --bg-dark: #030712;
+
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+
+  --border: #374151;
+  --border-light: #4b5563;
+
+  /* Adjusted shadows for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.6);
 }
 
 /* ===== Base Styles ===== */
@@ -87,68 +108,70 @@ body {
 /* ===== Layout ===== */
 .app {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: auto 1fr;
   min-height: 100vh;
   transition: var(--transition);
+  background: var(--bg-secondary);
 }
 
 .app.sidebar-collapsed {
-  grid-template-columns: 80px 1fr;
+  grid-template-columns: 72px 1fr;
 }
 
 /* ===== Sidebar ===== */
 .sidebar {
-  background: linear-gradient(180deg, var(--bg-dark) 0%, #1e293b 100%);
-  color: var(--text-inverse);
-  padding: 1.5rem 1rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: var(--spacing-xl) var(--spacing-md);
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
   transition: var(--transition);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow);
   z-index: 30;
+  border-right: 1px solid var(--border);
+  grid-row: 1 / -1;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-  padding: 0 0.5rem;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-2xl);
+  padding: 0;
 }
 
 .logo {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  border-radius: var(--radius-md);
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 900;
+  font-weight: 700;
   color: white;
-  font-size: 1.25rem;
-  box-shadow: var(--shadow-md);
+  font-size: 1.125rem;
+  box-shadow: var(--shadow);
   flex-shrink: 0;
 }
 
 .brand-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
 }
 
 .nav-section {
-  margin: 1.5rem 0 0.5rem;
-  padding: 0 0.75rem;
-  font-size: 0.75rem;
+  margin: var(--spacing-xl) 0 var(--spacing-sm);
+  padding: 0;
+  font-size: 0.6875rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: var(--text-muted);
   font-weight: 600;
 }
@@ -162,30 +185,30 @@ body {
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: var(--radius-md);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius);
   background: transparent;
   border: none;
-  color: #cbd5e1;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: var(--transition-fast);
   position: relative;
   text-align: left;
   width: 100%;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-inverse);
-  transform: translateX(2px);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .nav-item.active {
-  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
-  color: var(--text-inverse);
-  box-shadow: var(--shadow-md);
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
 }
 
 .nav-icon {
@@ -200,25 +223,126 @@ body {
 .nav-badge {
   margin-left: auto;
   padding: 0.125rem 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   background: var(--bg-tertiary);
-  color: var(--text-primary);
+  color: var(--text-secondary);
   border-radius: var(--radius-full);
   font-weight: 600;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.nav-item.active .nav-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* ===== Top Bar ===== */
+.topbar {
+  grid-column: 2;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border);
+  padding: var(--spacing-md) var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  flex: 1;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.topbar-search {
+  position: relative;
+  flex: 1;
+  max-width: 500px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.topbar-icon-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.topbar-icon-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.topbar-icon-btn .badge-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background: var(--danger);
+  border: 2px solid var(--bg-primary);
+  border-radius: 50%;
+}
+
+.topbar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow);
+}
+
+.topbar-avatar:hover {
+  transform: scale(1.05);
 }
 
 /* ===== Main Content ===== */
 .main {
-  padding: 1.5rem;
+  grid-column: 2;
+  padding: var(--spacing-xl);
   background: var(--bg-secondary);
-  min-height: 100vh;
+  min-height: calc(100vh - 72px);
+  overflow-y: auto;
 }
 
 .header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
   flex-wrap: wrap;
 }
 
@@ -230,24 +354,30 @@ body {
 
 .search-input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 2.75rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--bg-primary);
-  font-size: 0.9rem;
+  border-radius: var(--radius);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
   transition: var(--transition-fast);
-  box-shadow: var(--shadow-sm);
+  font-family: inherit;
 }
 
 .search-input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
 }
 
 .search-icon {
   position: absolute;
-  left: 1rem;
+  left: var(--spacing-md);
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
@@ -258,140 +388,196 @@ body {
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.9rem;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius);
+  font-weight: 500;
+  font-size: 0.875rem;
   cursor: pointer;
   transition: var(--transition-fast);
   border: none;
   white-space: nowrap;
+  font-family: inherit;
+  line-height: 1.5;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: var(--primary);
   color: white;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  background: var(--primary-dark);
+  box-shadow: var(--shadow);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
 }
 
 .btn-secondary {
   background: var(--bg-primary);
   color: var(--text-primary);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover {
   background: var(--bg-tertiary);
-  border-color: var(--primary);
+  border-color: var(--text-muted);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
 }
 
 .btn-danger {
-  background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+  background: var(--danger);
   color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  box-shadow: var(--shadow);
 }
 
 .btn-success {
-  background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+  background: var(--success);
   color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-success:hover {
+  background: #059669;
+  box-shadow: var(--shadow);
+}
+
+.btn-info {
+  background: var(--info);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-info:hover {
+  background: #2563eb;
+  box-shadow: var(--shadow);
 }
 
 .btn-icon {
-  padding: 0.5rem;
-  border-radius: var(--radius-full);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius);
+  width: 36px;
+  height: 36px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+  transform: none;
 }
 
 /* ===== Cards ===== */
 .card {
   background: var(--bg-primary);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
   transition: var(--transition);
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow);
+  border-color: var(--border);
 }
 
 .card-header {
-  padding: 1.25rem;
-  border-bottom: 1px solid var(--border-light);
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background: var(--bg-primary);
 }
 
 .card-title {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--text-primary);
+  line-height: 1.5;
 }
 
 .card-body {
-  padding: 1.25rem;
+  padding: var(--spacing-lg);
 }
 
 /* ===== KPI Cards ===== */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
 }
 
 .kpi-card {
   background: var(--bg-primary);
-  padding: 1.5rem;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
   transition: var(--transition);
 }
 
-.kpi-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
-}
-
 .kpi-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+  border-color: var(--primary);
 }
 
 .kpi-value {
   font-size: 2rem;
-  font-weight: 800;
-  margin: 0.5rem 0;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-weight: 700;
+  margin: var(--spacing-sm) 0;
+  color: var(--text-primary);
+  line-height: 1.2;
 }
 
 .kpi-label {
   font-size: 0.875rem;
   color: var(--text-secondary);
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.kpi-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  margin-bottom: var(--spacing-sm);
 }
 
 .kpi-change {
-  font-size: 0.75rem;
-  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  margin-top: var(--spacing-sm);
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  font-weight: 500;
 }
 
 .kpi-change.positive {
@@ -405,43 +591,49 @@ body {
 /* ===== Tables ===== */
 .table-container {
   overflow-x: auto;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
 }
 
 .table {
   width: 100%;
   background: var(--bg-primary);
-  border-collapse: separate;
+  border-collapse: collapse;
   border-spacing: 0;
-  table-layout: fixed;
 }
 
 .table thead {
-  background: var(--bg-tertiary);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
 }
 
 .table th {
-  padding: 1rem;
+  padding: var(--spacing-md) var(--spacing-lg);
   text-align: left;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-secondary);
-  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
 }
 
 .table td {
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-light);
-  font-size: 0.9rem;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.875rem;
+  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .table tbody tr {
   transition: var(--transition-fast);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .table tbody tr:hover {
@@ -452,32 +644,38 @@ body {
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   border-radius: var(--radius-full);
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
+  text-transform: capitalize;
+  letter-spacing: 0.015em;
+  line-height: 1;
 }
 
 .badge-success {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(16, 185, 129, 0.15);
   color: var(--success);
 }
 
 .badge-warning {
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(245, 158, 11, 0.15);
   color: var(--warning);
 }
 
 .badge-danger {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.15);
   color: var(--danger);
 }
 
 .badge-info {
-  background: rgba(6, 182, 212, 0.1);
+  background: rgba(59, 130, 246, 0.15);
   color: var(--info);
+}
+
+.badge-primary {
+  background: rgba(20, 184, 166, 0.15);
+  color: var(--primary);
 }
 
 /* ===== Progress Bar ===== */
@@ -520,8 +718,8 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -529,6 +727,7 @@ body {
   opacity: 0;
   visibility: hidden;
   transition: var(--transition);
+  padding: var(--spacing-lg);
 }
 
 .modal.active {
@@ -538,44 +737,52 @@ body {
 
 .modal-content {
   background: var(--bg-primary);
-  border-radius: var(--radius-lg);
-  width: 90%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  width: 100%;
   max-width: 800px;
   max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-xl);
-  transform: scale(0.9);
+  transform: scale(0.95) translateY(20px);
   transition: var(--transition);
 }
 
 .modal.active .modal-content {
-  transform: scale(1);
+  transform: scale(1) translateY(0);
 }
 
 .modal-header {
-  padding: 1.5rem;
+  padding: var(--spacing-xl);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background: var(--bg-primary);
 }
 
 .modal-title {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.5;
 }
 
 .modal-close {
-  background: none;
+  background: transparent;
   border: none;
-  font-size: 1.5rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 0.25rem;
   border-radius: var(--radius);
   transition: var(--transition-fast);
+  font-size: 1.25rem;
 }
 
 .modal-close:hover {
@@ -584,17 +791,18 @@ body {
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: var(--spacing-xl);
   overflow-y: auto;
   flex: 1;
 }
 
 .modal-footer {
-  padding: 1rem 1.5rem;
+  padding: var(--spacing-lg) var(--spacing-xl);
   border-top: 1px solid var(--border);
   display: flex;
   justify-content: flex-end;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
+  background: var(--bg-secondary);
 }
 
 /* ===== Tutorial System ===== */
@@ -954,23 +1162,24 @@ body {
 /* ===== Dropdown Menu ===== */
 .dropdown {
   position: relative;
+  display: inline-block;
 }
 
 .dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 0.5rem);
   right: 0;
-  margin-top: 0.5rem;
   background: var(--bg-primary);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
-  min-width: 200px;
+  min-width: 220px;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-10px);
+  transform: translateY(-8px);
   transition: var(--transition-fast);
   z-index: 50;
+  padding: var(--spacing-xs) 0;
 }
 
 .dropdown-menu.show {
@@ -982,8 +1191,8 @@ body {
 .dropdown-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   cursor: pointer;
   transition: var(--transition-fast);
   border: none;
@@ -991,16 +1200,27 @@ body {
   width: 100%;
   text-align: left;
   color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
 }
 
 .dropdown-item:hover {
-  background: var(--bg-secondary);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.dropdown-item:first-child {
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.dropdown-item:last-child {
+  border-radius: 0 0 var(--radius) var(--radius);
 }
 
 .dropdown-divider {
   height: 1px;
   background: var(--border);
-  margin: 0.25rem 0;
+  margin: var(--spacing-xs) 0;
 }
 
 /* ===== Charts ===== */
@@ -1073,45 +1293,119 @@ body {
 /* ===== Responsive Design ===== */
 @media (max-width: 1024px) {
   .app {
-    grid-template-columns: 1fr;
+    grid-template-columns: 72px 1fr;
   }
-  
+
   .sidebar {
-    position: fixed;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    padding: var(--spacing-lg) var(--spacing-xs);
   }
-  
-  .sidebar.open {
-    transform: translateX(0);
+
+  .brand-title {
+    display: none;
   }
-  
+
+  .nav-item span:not(.nav-icon):not(.nav-badge) {
+    display: none;
+  }
+
+  .nav-section {
+    font-size: 0;
+    height: 2px;
+    background: var(--border);
+    margin: var(--spacing-lg) var(--spacing-xs);
+  }
+
   .kpi-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .topbar-search {
+    max-width: 300px;
+  }
+
+  .main {
+    padding: var(--spacing-lg);
   }
 }
 
 @media (max-width: 768px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    z-index: 100;
+    padding: var(--spacing-xl) var(--spacing-md);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.mobile-open {
+    display: block;
+    transform: translateX(0);
+  }
+
+  .topbar {
+    grid-column: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .topbar-left {
+    flex: 1;
+  }
+
+  .topbar-search {
+    max-width: none;
+  }
+
+  .topbar-actions .btn {
+    padding: var(--spacing-sm);
+  }
+
+  .topbar-actions .btn span:not(.sr-only) {
+    display: none;
+  }
+
+  .main {
+    grid-column: 1;
+    padding: var(--spacing-md);
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
   .header {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .search-box {
     min-width: 100%;
   }
-  
+
   .form-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .table {
     font-size: 0.85rem;
   }
-  
+
   .table th,
   .table td {
-    padding: 0.75rem 0.5rem;
+    padding: var(--spacing-sm) var(--spacing-xs);
+  }
+
+  .dropdown-menu {
+    left: 0;
+    right: auto;
   }
 }
 
@@ -2212,88 +2506,107 @@ body {
       </button>
     </div>
   </aside>
-  
-  <!-- Main Content -->
-  <main class="main">
-    <!-- Header -->
-    <header class="header">
-      <div class="search-box">
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-search">
         <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
-        <input type="text" class="search-input" id="globalSearch" placeholder="Rechercher... (Ctrl+K)">
+        <input type="text" class="search-input" id="globalSearch" placeholder="Rechercher des patients... (Ctrl+K)">
       </div>
-      
-      <button class="btn btn-secondary" id="btnAddPatient">
-        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
-        Nouveau patient
-      </button>
-      
-      <button class="btn btn-info" id="btnImportCSV" style="background: var(--info); margin-left: 10px;">
-        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-        Importer CSV
-      </button>
-      
-      <div class="dropdown">
-        <button class="btn btn-primary" id="btnQuickActions">
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"></path></svg>
-          Actions rapides
+    </div>
+
+    <div class="topbar-right">
+      <div class="topbar-actions">
+        <button class="btn btn-primary" id="btnAddPatient">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+          Nouveau patient
         </button>
-        <div class="dropdown-menu" id="qaMenu">
-          <button class="dropdown-item" onclick="newPatient()">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"></path></svg>
-            Nouveau patient
+
+        <div class="dropdown">
+          <button class="btn btn-secondary" id="btnQuickActions">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"></path></svg>
+            Actions
           </button>
-          <button class="dropdown-item" onclick="openSwitchModal()">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path></svg>
-            Planifier switch
-          </button>
-          <button class="dropdown-item" onclick="openAppointmentModal()">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
-            Nouveau RDV
-          </button>
-          <button class="dropdown-item" onclick="fcOpen()">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
-            Fast Check Ordonnances
-          </button>
-          <button class="dropdown-item" onclick="fcoOpen()">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
-            Fast Create Ordo
-          </button>
+          <div class="dropdown-menu" id="qaMenu">
+            <button class="dropdown-item" onclick="newPatient()">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"></path></svg>
+              Nouveau patient
+            </button>
+            <button class="dropdown-item" onclick="openSwitchModal()">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path></svg>
+              Planifier switch
+            </button>
+            <button class="dropdown-item" onclick="openAppointmentModal()">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+              Nouveau RDV
+            </button>
+            <button class="dropdown-item" onclick="fcOpen()">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+              Fast Check Ordonnances
+            </button>
+            <button class="dropdown-item" onclick="fcoOpen()">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
+              Fast Create Ordo
+            </button>
+            <button class="dropdown-item" onclick="btnImportCSV.click()">
+              <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+              Importer CSV
+            </button>
+          </div>
         </div>
       </div>
-    </header>
+
+      <button class="topbar-icon-btn" title="Notifications">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+        </svg>
+      </button>
+
+      <button class="topbar-icon-btn" onclick="toggleTheme()" title="Changer le thème">
+        <svg id="themeIconTopbar" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+        </svg>
+      </button>
+
+      <div class="topbar-avatar" title="Profil utilisateur">
+        NHC
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
     
     <!-- Views -->
     <!-- Dashboard View -->
     <section id="dashboard" class="view active">
-      <!-- Welcome Header -->
-      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden;">
-        <div style="position: absolute; top: 0; right: 0; width: 300px; height: 300px; background: rgba(255,255,255,0.1); border-radius: 50%; transform: translate(30%, -30%);"></div>
-        <div style="position: absolute; bottom: 0; left: 0; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%; transform: translate(-30%, 30%);"></div>
-        <div style="position: relative; z-index: 1;">
-          <h1 style="color: white; font-size: 2rem; font-weight: 800; margin: 0 0 0.5rem 0;">
-            Tableau de Bord 📊
-          </h1>
-          <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin: 0;" id="dashboardWelcome">
-            Bienvenue ! Voici votre vue d'ensemble
-          </p>
-        </div>
+      <!-- Page Header -->
+      <div style="margin-bottom: var(--spacing-xl);">
+        <h1 style="font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin: 0 0 var(--spacing-xs) 0;">
+          Tableau de bord
+        </h1>
+        <p style="color: var(--text-secondary); font-size: 0.9375rem; margin: 0;" id="dashboardWelcome">
+          Bienvenue ! Voici votre vue d'ensemble
+        </p>
       </div>
 
-      <!-- Actions rapides - EN HAUT -->
-      <div class="card" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border: 2px dashed var(--primary); margin-bottom: 1.5rem;">
-        <div class="card-body">
-          <h3 style="margin: 0 0 1rem 0; color: var(--primary); font-weight: 700;">⚡ Actions rapides</h3>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-            <button class="btn btn-primary" onclick="newPatient()" style="justify-content: center; padding: 1rem;">
-              <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"></path></svg>
-              Nouveau patient
-            </button>
-            <button class="btn btn-secondary" onclick="openSwitchModal()" style="justify-content: center; padding: 1rem;">
-              <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path></svg>
-              Planifier switch
-            </button>
+      <!-- Actions rapides - moved to topbar, keeping for backward compatibility but hidden -->
+      <div style="display: none;">
+        <div class="card" style="margin-bottom: var(--spacing-xl);">
+          <div class="card-body">
+            <h3 style="margin: 0 0 var(--spacing-lg) 0; color: var(--text-primary); font-weight: 600; font-size: 1rem;">Actions rapides</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md);">
+              <button class="btn btn-primary" onclick="newPatient()" style="justify-content: center;">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"></path></svg>
+                Nouveau patient
+              </button>
+              <button class="btn btn-secondary" onclick="openSwitchModal()" style="justify-content: center;">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path></svg>
+                Planifier switch
+              </button>
             <button class="btn btn-secondary" onclick="openAppointmentModal()" style="justify-content: center; padding: 1rem;">
               <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
               Nouveau RDV
