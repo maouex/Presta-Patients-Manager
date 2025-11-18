@@ -1137,6 +1137,14 @@ body {
   border-left: 3px solid #f093fb;
 }
 
+.calendar-event.to-call {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
+  color: #d97706;
+  border: 1px dashed #f59e0b;
+  border-left: 3px solid #f59e0b;
+  font-style: italic;
+}
+
 .calendar-event-icon {
   font-size: 0.875rem;
   flex-shrink: 0;
@@ -2490,6 +2498,21 @@ body {
         </div>
         <div class="card-body" style="padding: 1.5rem;">
           <div id="dashboardCalendar"></div>
+          <!-- Légende -->
+          <div style="display: flex; gap: 2rem; justify-content: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1rem;">📅</span>
+              <span style="font-size: 0.875rem; color: var(--text-secondary);">RDV avec date précise</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1rem;">📞</span>
+              <span style="font-size: 0.875rem; color: var(--text-secondary);">Patient à rappeler (pas de date fixe)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1rem;">🔄</span>
+              <span style="font-size: 0.875rem; color: var(--text-secondary);">Switch planifié</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -6152,8 +6175,19 @@ function renderDashboardCalendar() {
       const visibleEvents = dayEvents.slice(0, maxVisible);
 
       visibleEvents.forEach(event => {
-        const icon = event.type === 'appointment' ? '📅' : '🔄';
-        const eventClass = event.type === 'appointment' ? 'appointment' : 'switch';
+        let icon, eventClass;
+
+        if (event.type === 'appointment') {
+          icon = '📅';
+          eventClass = 'appointment';
+        } else if (event.type === 'switch') {
+          icon = '🔄';
+          eventClass = 'switch';
+        } else if (event.type === 'to-call') {
+          icon = '📞';
+          eventClass = 'to-call';
+        }
+
         html += `
           <div class="calendar-event ${eventClass}" title="${escapeHtml(event.title)}">
             <span class="calendar-event-icon">${icon}</span>
@@ -6192,6 +6226,8 @@ function getMonthEvents(year, month) {
       if (apt.status !== 'active') return;
 
       let aptDate = null;
+      let isToCall = false; // Flag pour les patients à rappeler
+
       if (apt.exactDate) {
         const parts = apt.exactDate.split('/');
         if (parts.length === 3) {
@@ -6203,13 +6239,14 @@ function getMonthEvents(year, month) {
           }
         }
       } else if (apt.month) {
-        // If only month is specified, show on first day
+        // If only month is specified, mark as "to call" (not a fixed appointment)
         const parts = apt.month.split('/');
         if (parts.length === 2) {
           const aptMonth = parseInt(parts[0], 10) - 1;
           const aptYear = parseInt(parts[1], 10);
           if (aptMonth === month && aptYear === year) {
             aptDate = 1;
+            isToCall = true; // Marquer comme "à rappeler"
           }
         }
       }
@@ -6219,9 +6256,12 @@ function getMonthEvents(year, month) {
         if (patient) {
           events.push({
             day: aptDate,
-            type: 'appointment',
-            title: `RDV: ${fullName(patient)} - ${apt.type || 'Suivi'}`,
+            type: isToCall ? 'to-call' : 'appointment',
+            title: isToCall
+              ? `À rappeler: ${fullName(patient)} - ${apt.type || 'Suivi'}`
+              : `RDV: ${fullName(patient)} - ${apt.type || 'Suivi'}`,
             patientName: fullName(patient),
+            isToCall: isToCall,
             data: apt
           });
         }
