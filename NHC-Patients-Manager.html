@@ -15808,6 +15808,60 @@ function csvDisplayFileInfo(result, numCols, numRows) {
   `;
 }
 
+// Helper function to convert Excel serial date to DD/MM/YYYY
+function csvExcelDateToJSDate(serial) {
+  // Excel dates are days since 30/12/1899
+  const excelEpoch = new Date(1899, 11, 30);
+  const date = new Date(excelEpoch.getTime() + serial * 24 * 60 * 60 * 1000);
+
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+
+  return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+}
+
+// Format date value for display in CSV preview table
+function csvFormatDateForDisplay(value) {
+  if (!value) return value;
+
+  const strValue = String(value).trim();
+
+  // Check if it's an Excel serial date (number between 1000 and 100000)
+  // Excel dates typically range from ~36500 (2000) to ~50000 (2036+)
+  // Using 1000 as minimum to avoid confusion with small numbers
+  const numValue = parseFloat(strValue);
+  if (!isNaN(numValue) && numValue > 1000 && numValue < 100000 && strValue.indexOf('.') === -1) {
+    // It's likely an Excel serial date
+    try {
+      return csvExcelDateToJSDate(numValue);
+    } catch (e) {
+      return strValue; // If conversion fails, return original
+    }
+  }
+
+  // Check if it's already a date in YYYY-MM-DD or YYYY/MM/DD format
+  const isoDateMatch = strValue.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+  if (isoDateMatch) {
+    const year = isoDateMatch[1];
+    const month = isoDateMatch[2].padStart(2, '0');
+    const day = isoDateMatch[3].padStart(2, '0');
+    return `${day}/${month}/${year}`;
+  }
+
+  // Check if it's already in DD/MM/YYYY or DD-MM-YYYY format
+  const frenchDateMatch = strValue.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  if (frenchDateMatch) {
+    const day = frenchDateMatch[1].padStart(2, '0');
+    const month = frenchDateMatch[2].padStart(2, '0');
+    const year = frenchDateMatch[3];
+    return `${day}/${month}/${year}`;
+  }
+
+  // Return original value if not a date
+  return strValue;
+}
+
 // Display mapping table
 function csvDisplayMappingTable() {
   const table = byId('csvMappingTable');
@@ -15846,9 +15900,11 @@ function csvDisplayMappingTable() {
     
     headers.forEach((_, colIndex) => {
       const value = rows[i]?.[colIndex] || '';
-      const displayValue = String(value).length > 30 ? String(value).substring(0, 27) + '...' : value;
+      // Format dates for display
+      const formattedValue = csvFormatDateForDisplay(value);
+      const displayValue = String(formattedValue).length > 30 ? String(formattedValue).substring(0, 27) + '...' : formattedValue;
       html += `
-        <td style="padding: 12px 10px; border-right: 1px solid #ecf0f1; font-size: 13px; color: var(--text-primary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${String(value).replace(/"/g, '&quot;')}">
+        <td style="padding: 12px 10px; border-right: 1px solid #ecf0f1; font-size: 13px; color: var(--text-primary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${String(formattedValue).replace(/"/g, '&quot;')}">
           ${displayValue || '<span style="color: #95a5a6; font-style: italic;">—</span>'}
         </td>
       `;
