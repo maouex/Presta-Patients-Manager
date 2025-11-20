@@ -14914,40 +14914,95 @@ function loadCSVFile() {
 function displayCSVPreview() {
   const table = byId('csvPreviewTable');
   const maxRows = Math.min(10, csvImportState.parsedData.length);
-  
+
+  // Helper function to detect if a value looks like a date
+  const looksLikeDate = (val) => {
+    if (!val) return false;
+    const asNumber = parseFloat(val);
+    // Check if it's an Excel date number
+    if (!isNaN(asNumber) && asNumber > 1000 && asNumber < 100000) {
+      return true;
+    }
+    // Check if it matches common date patterns
+    const datePatterns = [
+      /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}$/,  // DD/MM/YYYY variants
+      /^\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2}$/,    // YYYY-MM-DD variants
+    ];
+    return datePatterns.some(pattern => pattern.test(String(val).trim()));
+  };
+
+  // Detect which columns contain dates (check first few rows)
+  const dateColumns = new Set();
+  const samplesToCheck = Math.min(5, csvImportState.parsedData.length);
+  for (let j = 0; j < csvImportState.headers.length; j++) {
+    const header = csvImportState.headers[j].toLowerCase();
+    // Check if header suggests it's a date column
+    const headerSuggestsDate = header.includes('date') || header.includes('naissance') ||
+                                header.includes('renouvellement') || header.includes('birth') ||
+                                header.includes('renewal');
+
+    if (headerSuggestsDate) {
+      dateColumns.add(j);
+    } else {
+      // Check if values in this column look like dates
+      let dateCount = 0;
+      for (let i = 0; i < samplesToCheck; i++) {
+        const val = csvImportState.parsedData[i]?.[j];
+        if (val && looksLikeDate(val)) {
+          dateCount++;
+        }
+      }
+      // If most values look like dates, treat as date column
+      if (dateCount >= samplesToCheck * 0.6) {
+        dateColumns.add(j);
+      }
+    }
+  }
+
   let html = '<div style="overflow-x: auto;"><table class="table"><thead><tr>';
-  
+
   // Headers with column numbers
   csvImportState.headers.forEach((header, idx) => {
     html += `<th style="min-width: 100px;">Col ${idx + 1}<br><span class="text-small text-muted">${header}</span></th>`;
   });
   html += '</tr></thead><tbody>';
-  
+
   // Preview rows
   for (let i = 0; i < maxRows; i++) {
     html += '<tr>';
     const row = csvImportState.parsedData[i];
     for (let j = 0; j < csvImportState.headers.length; j++) {
       const val = row[j] || '';
-      const displayVal = val.length > 50 ? val.substring(0, 47) + '...' : val;
-      html += `<td title="${val.replace(/"/g, '&quot;')}">${displayVal || '—'}</td>`;
+      let displayVal = val;
+
+      // Try to format as date if this column is detected as a date column
+      if (dateColumns.has(j) && val) {
+        const formatted = convertDateFormat(val);
+        if (formatted) {
+          displayVal = formatted;
+        }
+      }
+
+      // Truncate if too long
+      const truncatedVal = String(displayVal).length > 50 ? String(displayVal).substring(0, 47) + '...' : displayVal;
+      html += `<td title="${String(val).replace(/"/g, '&quot;')}">${truncatedVal || '—'}</td>`;
     }
     html += '</tr>';
   }
-  
+
   html += '</tbody></table></div>';
-  
+
   if (csvImportState.parsedData.length > maxRows) {
     html += `<p class="text-muted text-center mt-2">... et ${csvImportState.parsedData.length - maxRows} lignes supplémentaires</p>`;
   }
-  
+
   table.innerHTML = html;
-  
-  const sepDisplay = csvImportState.separator === '\t' ? 'Tabulation' : 
+
+  const sepDisplay = csvImportState.separator === '\t' ? 'Tabulation' :
                      csvImportState.separator === ',' ? 'Virgule (,)' :
                      csvImportState.separator === ';' ? 'Point-virgule (;)' :
                      csvImportState.separator;
-  
+
   byId('csvRowCount').textContent = `${csvImportState.parsedData.length} lignes détectées (${csvImportState.headers.length} colonnes)`;
   byId('csvSeparatorInfo').textContent = `Séparateur: ${sepDisplay}`;
 }
