@@ -16336,43 +16336,56 @@ function openPurgeTotaleModal() {
 }
 
 function exportBeforePurge() {
-  // Export all data to JSON
-  const exportData = {
-    version: '2.0',
-    exportDate: new Date().toISOString(),
-    data: {
-      patients: state.patients || [],
-      appointments: state.appointments || [],
-      switches: state.switches || [],
-      docs: state.docs || [],
-      centers: state.centers || [],
-      protos: state.protos || [],
-      templates: state.templates || [],
-      tasks: state.tasks || []
-    },
-    metadata: {
-      totalPatients: state.patients?.length || 0,
-      totalAppointments: state.appointments?.length || 0,
-      totalSwitches: state.switches?.length || 0,
-      totalDoctors: state.docs?.length || 0,
-      totalCenters: state.centers?.length || 0,
-      totalProtocols: state.protos?.length || 0,
-      totalTemplates: state.templates?.length || 0,
-      totalTasks: state.tasks?.length || 0
-    }
-  };
+  console.log('📥 Début de l\'export avant purge...');
 
-  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `nhc-backup-${new Date().toISOString().split('T')[0]}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  try {
+    // Export all data to JSON
+    const exportData = {
+      version: '4.0',
+      exportDate: new Date().toISOString(),
+      data: {
+        patients: state.patients || [],
+        appointments: state.appointments || [],
+        switches: state.switches || [],
+        docs: state.docs || [],
+        centers: state.centers || [],
+        protos: state.protos || [],
+        prescriptionTemplates: state.prescriptionTemplates || [],
+        templates: state.templates || [],
+        tasks: state.tasks || []
+      },
+      metadata: {
+        totalPatients: state.patients?.length || 0,
+        totalAppointments: state.appointments?.length || 0,
+        totalSwitches: state.switches?.length || 0,
+        totalDoctors: state.docs?.length || 0,
+        totalCenters: state.centers?.length || 0,
+        totalProtocols: state.protos?.length || 0,
+        totalTemplates: state.templates?.length || 0,
+        totalTasks: state.tasks?.length || 0
+      }
+    };
 
-  showToast('✅ Export réussi ! Fichier téléchargé', 'success');
+    console.log('📊 Données à exporter:', exportData.metadata);
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nhc-backup-avant-purge-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    console.log('✅ Export terminé avec succès!');
+    showToast('✅ Export réussi ! Fichier téléchargé', 'success');
+    return true;
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'export:', error);
+    showToast('❌ Erreur lors de l\'export : ' + error.message, 'error');
+    return false;
+  }
 }
 
 function executePurgeTotale() {
@@ -16387,7 +16400,44 @@ function executePurgeTotale() {
   console.log('✅ Confirmation reçue, début de la purge...');
 
   try {
-    // Clear all localStorage keys related to the app
+    // ÉTAPE 1: Créer un backup de sécurité automatique dans localStorage
+    console.log('🔒 ÉTAPE 1: Création du backup de sécurité...');
+    const emergencyBackupKey = 'nhc-emergency-backup-before-purge';
+    const backupData = {
+      version: '4.0',
+      backupDate: new Date().toISOString(),
+      backupType: 'emergency-before-purge',
+      data: {
+        patients: state.patients || [],
+        appointments: state.appointments || [],
+        switches: state.switches || [],
+        docs: state.docs || [],
+        centers: state.centers || [],
+        protos: state.protos || [],
+        prescriptionTemplates: state.prescriptionTemplates || [],
+        templates: state.templates || [],
+        tasks: state.tasks || []
+      }
+    };
+
+    try {
+      localStorage.setItem(emergencyBackupKey, JSON.stringify(backupData));
+      console.log('✅ Backup de sécurité créé avec succès dans localStorage!');
+
+      // Vérifier que le backup est bien créé
+      const verifyBackup = localStorage.getItem(emergencyBackupKey);
+      if (!verifyBackup) {
+        throw new Error('Le backup de sécurité n\'a pas pu être vérifié!');
+      }
+      console.log('✅ Backup vérifié avec succès!');
+    } catch (backupError) {
+      console.error('❌ ERREUR CRITIQUE: Impossible de créer le backup de sécurité!', backupError);
+      showToast('❌ ERREUR: Impossible de créer le backup de sécurité. Purge annulée pour votre protection.', 'error');
+      return; // STOPPER ICI - ne pas continuer si le backup échoue!
+    }
+
+    // ÉTAPE 2: Clear all localStorage keys related to the app (sauf le backup d'urgence!)
+    console.log('🗑️ ÉTAPE 2: Suppression des données...');
     const keysToRemove = [
       DB_KEY,
       DB_KEY + '-backup',
@@ -16398,9 +16448,11 @@ function executePurgeTotale() {
 
     keysToRemove.forEach(key => {
       localStorage.removeItem(key);
+      console.log(`  - Supprimé: ${key}`);
     });
 
-    // Reset state to empty
+    // ÉTAPE 3: Reset state to empty
+    console.log('🔄 ÉTAPE 3: Réinitialisation de l\'état...');
     state = {
       patients: [],
       appointments: [],
@@ -16408,42 +16460,223 @@ function executePurgeTotale() {
       docs: [],
       centers: [],
       protos: [],
+      prescriptionTemplates: [],
       templates: [],
       tasks: []
     };
 
-    // Save empty state
-    console.log('💾 Sauvegarde de l\'état vide...');
+    // ÉTAPE 4: Save empty state
+    console.log('💾 ÉTAPE 4: Sauvegarde de l\'état vide...');
     saveDB();
 
-    // Close modal
-    console.log('🚪 Fermeture du modal...');
+    // ÉTAPE 5: Close modal
+    console.log('🚪 ÉTAPE 5: Fermeture du modal...');
     showModal(false, 'purgeTotaleModal');
 
-    // Show success message
-    console.log('🎉 Affichage du message de succès...');
-    showToast('🗑️ PURGE TOTALE EFFECTUÉE - Toutes les données ont été supprimées', 'success');
+    // ÉTAPE 6: Show success message
+    console.log('🎉 ÉTAPE 6: Affichage du message de succès...');
+    showToast('🗑️ PURGE TOTALE EFFECTUÉE\n\n✅ Backup de sécurité créé\n💡 Tapez "restoreEmergencyBackup()" dans la console pour restaurer', 'success');
 
-    // Refresh all views
-    console.log('🔄 Rafraîchissement des vues...');
+    // ÉTAPE 7: Refresh all views
+    console.log('🔄 ÉTAPE 7: Rafraîchissement des vues...');
     render();
-    renderSwitches();
-    renderAppointments();
-    renderDashboard();
-    renderCatalogs();
-    renderTasks();
+    if (typeof renderSwitches === 'function') renderSwitches();
+    if (typeof renderAppointments === 'function') renderAppointments();
+    if (typeof renderDashboard === 'function') renderDashboard();
+    if (typeof renderCatalogs === 'function') renderCatalogs();
+    if (typeof renderTasks === 'function') renderTasks();
 
-    // Switch to dashboard
-    console.log('📊 Basculement vers le dashboard...');
+    // ÉTAPE 8: Switch to dashboard
+    console.log('📊 ÉTAPE 8: Basculement vers le dashboard...');
     setTimeout(() => {
       switchView('dashboard');
     }, 1000);
 
     console.log('✅ Purge totale terminée avec succès!');
+    console.log('💾 Un backup de sécurité a été créé automatiquement.');
+    console.log('🔧 Pour restaurer vos données, tapez: restoreEmergencyBackup()');
 
   } catch (error) {
     console.error('❌ Erreur lors de la purge:', error);
     showToast('❌ Erreur lors de la purge : ' + error.message, 'error');
+  }
+}
+
+// ===== Mode TEST pour la purge =====
+function createTestDataForPurge() {
+  console.log('🧪 Création de données de test...');
+
+  // Sauvegarder les vraies données
+  const realDataBackup = localStorage.getItem(DB_KEY);
+  if (realDataBackup) {
+    localStorage.setItem('nhc-real-data-backup-for-test', realDataBackup);
+    console.log('✅ Vraies données sauvegardées');
+  }
+
+  // Créer des données de test
+  const testData = {
+    patients: [
+      { id: 'test1', firstName: 'Jean', lastName: 'TEST', birthDate: '1980-01-01', protocol: 'test-proto', doctorId: 'test-doc', centerId: 'test-center', renewalDate: '2025-06-15', status: 'active' },
+      { id: 'test2', firstName: 'Marie', lastName: 'DEMO', birthDate: '1975-05-10', protocol: 'test-proto', doctorId: 'test-doc', centerId: 'test-center', renewalDate: '2025-07-20', status: 'active' },
+      { id: 'test3', firstName: 'Paul', lastName: 'EXEMPLE', birthDate: '1990-12-25', protocol: 'test-proto', doctorId: 'test-doc', centerId: 'test-center', renewalDate: '2025-08-30', status: 'active' }
+    ],
+    appointments: [
+      { id: 'apt1', patientId: 'test1', date: '2025-06-15', time: '10:00', type: 'consultation', status: 'scheduled' },
+      { id: 'apt2', patientId: 'test2', date: '2025-07-20', time: '14:30', type: 'consultation', status: 'scheduled' }
+    ],
+    switches: [
+      { id: 'sw1', patientId: 'test1', oldProtocol: 'OLD', newProtocol: 'NEW', date: '2024-01-15', reason: 'Test switch' }
+    ],
+    docs: [
+      { id: 'test-doc', firstName: 'Dr. Test', lastName: 'MÉDECIN', rpps: '12345678', speciality: 'Oncologie' }
+    ],
+    centers: [
+      { id: 'test-center', name: 'Centre de Test', address: '123 Rue Test', city: 'TestVille', zipCode: '75000' }
+    ],
+    protos: [
+      { id: 'test-proto', name: 'Protocole Test', molecule: 'TestMol', duration: 21, cycles: 6 }
+    ],
+    prescriptionTemplates: [],
+    templates: [],
+    tasks: [
+      { id: 'task1', title: 'Tâche de test 1', description: 'Ceci est une tâche de test', completed: false, createdAt: new Date().toISOString() },
+      { id: 'task2', title: 'Tâche de test 2', description: 'Une autre tâche de test', completed: true, createdAt: new Date().toISOString() }
+    ]
+  };
+
+  // Appliquer les données de test
+  state = testData;
+  saveDB();
+
+  // Rafraîchir
+  render();
+  if (typeof renderSwitches === 'function') renderSwitches();
+  if (typeof renderAppointments === 'function') renderAppointments();
+  if (typeof renderDashboard === 'function') renderDashboard();
+  if (typeof renderCatalogs === 'function') renderCatalogs();
+  if (typeof renderTasks === 'function') renderTasks();
+
+  console.log('✅ Données de test créées:', {
+    patients: testData.patients.length,
+    appointments: testData.appointments.length,
+    doctors: testData.docs.length,
+    centers: testData.centers.length
+  });
+
+  showToast('🧪 MODE TEST activé\n\n✅ 3 patients de test créés\n💡 Vous pouvez maintenant tester la purge sans risque\n🔧 Tapez "restoreRealData()" pour restaurer vos vraies données', 'success');
+
+  return true;
+}
+
+function restoreRealData() {
+  console.log('🔄 Restauration des vraies données...');
+
+  const realData = localStorage.getItem('nhc-real-data-backup-for-test');
+  if (!realData) {
+    console.error('❌ Aucune sauvegarde des vraies données trouvée!');
+    showToast('❌ Aucune sauvegarde trouvée', 'error');
+    return false;
+  }
+
+  try {
+    // Restaurer
+    localStorage.setItem(DB_KEY, realData);
+    localStorage.removeItem('nhc-real-data-backup-for-test');
+
+    // Recharger
+    loadDB();
+    render();
+    if (typeof renderSwitches === 'function') renderSwitches();
+    if (typeof renderAppointments === 'function') renderAppointments();
+    if (typeof renderDashboard === 'function') renderDashboard();
+    if (typeof renderCatalogs === 'function') renderCatalogs();
+    if (typeof renderTasks === 'function') renderTasks();
+
+    console.log('✅ Vraies données restaurées!');
+    showToast('✅ Vos vraies données ont été restaurées', 'success');
+
+    return true;
+  } catch (error) {
+    console.error('❌ Erreur lors de la restauration:', error);
+    showToast('❌ Erreur : ' + error.message, 'error');
+    return false;
+  }
+}
+
+// ===== Fonction de restauration d'urgence =====
+function restoreEmergencyBackup() {
+  console.log('🔄 Tentative de restauration du backup d\'urgence...');
+
+  const emergencyBackupKey = 'nhc-emergency-backup-before-purge';
+  const backupData = localStorage.getItem(emergencyBackupKey);
+
+  if (!backupData) {
+    console.error('❌ Aucun backup d\'urgence trouvé!');
+    showToast('❌ Aucun backup d\'urgence trouvé', 'error');
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(backupData);
+    console.log('📦 Backup trouvé:', {
+      version: parsed.version,
+      date: parsed.backupDate,
+      patients: parsed.data.patients?.length || 0,
+      appointments: parsed.data.appointments?.length || 0,
+      doctors: parsed.data.docs?.length || 0,
+      centers: parsed.data.centers?.length || 0
+    });
+
+    if (!confirm(`🔄 RESTAURATION D'URGENCE\n\nBackup trouvé du ${new Date(parsed.backupDate).toLocaleString()}\n\n` +
+                 `Patients: ${parsed.data.patients?.length || 0}\n` +
+                 `Rendez-vous: ${parsed.data.appointments?.length || 0}\n` +
+                 `Médecins: ${parsed.data.docs?.length || 0}\n` +
+                 `Centres: ${parsed.data.centers?.length || 0}\n\n` +
+                 `Restaurer ces données ?`)) {
+      console.log('❌ Restauration annulée par l\'utilisateur');
+      return false;
+    }
+
+    // Restaurer les données
+    state = {
+      patients: parsed.data.patients || [],
+      appointments: parsed.data.appointments || [],
+      switches: parsed.data.switches || [],
+      docs: parsed.data.docs || [],
+      centers: parsed.data.centers || [],
+      protos: parsed.data.protos || [],
+      prescriptionTemplates: parsed.data.prescriptionTemplates || [],
+      templates: parsed.data.templates || [],
+      tasks: parsed.data.tasks || []
+    };
+
+    // Sauvegarder
+    saveDB();
+
+    // Rafraîchir l'affichage
+    render();
+    if (typeof renderSwitches === 'function') renderSwitches();
+    if (typeof renderAppointments === 'function') renderAppointments();
+    if (typeof renderDashboard === 'function') renderDashboard();
+    if (typeof renderCatalogs === 'function') renderCatalogs();
+    if (typeof renderTasks === 'function') renderTasks();
+
+    console.log('✅ Restauration réussie!');
+    showToast('✅ Données restaurées avec succès !', 'success');
+
+    // Supprimer le backup d'urgence après restauration réussie
+    if (confirm('Supprimer le backup d\'urgence maintenant qu\'il a été restauré ?')) {
+      localStorage.removeItem(emergencyBackupKey);
+      console.log('🗑️ Backup d\'urgence supprimé');
+      showToast('Backup d\'urgence nettoyé', 'info');
+    }
+
+    return true;
+
+  } catch (error) {
+    console.error('❌ Erreur lors de la restauration:', error);
+    showToast('❌ Erreur lors de la restauration : ' + error.message, 'error');
+    return false;
   }
 }
 
@@ -17942,6 +18175,9 @@ window.generatePrescriptionPDF = generatePrescriptionPDF;
 window.openPurgeTotaleModal = openPurgeTotaleModal;
 window.exportBeforePurge = exportBeforePurge;
 window.executePurgeTotale = executePurgeTotale;
+window.restoreEmergencyBackup = restoreEmergencyBackup;
+window.createTestDataForPurge = createTestDataForPurge;
+window.restoreRealData = restoreRealData;
 
 // Expose Advanced Prescription Creation functions
 window.openAdvancedPrescriptionCreation = openAdvancedPrescriptionCreation;
