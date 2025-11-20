@@ -5550,7 +5550,19 @@ function makeSelectSearchable(selectId, getOptions, getLabelFn, placeholderText 
     return;
   }
 
-  if (originalSelect.dataset.searchable === 'true') return;
+  // If already searchable, check if the setup is still valid
+  if (originalSelect.dataset.searchable === 'true') {
+    const container = originalSelect.parentNode;
+    const hasSearchInput = container && container.querySelector('input[type="text"]');
+
+    // If setup is valid, don't reinitialize
+    if (hasSearchInput) return;
+
+    // Otherwise, clean up the corrupted state
+    console.warn(`makeSelectSearchable: cleaning corrupted state for #${selectId}`);
+    originalSelect.dataset.searchable = 'false';
+    originalSelect.style.display = '';
+  }
 
   try {
     // Check if parent exists
