@@ -600,11 +600,16 @@ body {
 /* ===== Modal with Sidebar ===== */
 .modal-body-split {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   padding: 1.5rem;
   overflow-y: auto;
   flex: 1;
+}
+
+/* When sidebar is visible, use two column layout */
+.modal-body-split.has-sidebar {
+  grid-template-columns: 320px 1fr;
 }
 
 .patient-info-sidebar {
@@ -13012,11 +13017,13 @@ function renderSwitchList(containerId, switches, type) {
 // ===== Patient Info Sidebar Display Functions =====
 function displayAppointmentPatientInfo(patientId) {
   const sidebar = byId('appointmentPatientInfo');
+  const modalBody = sidebar?.closest('.modal-body-split');
 
   if (!sidebar) return;
 
   if (!patientId) {
     sidebar.style.display = 'none';
+    if (modalBody) modalBody.classList.remove('has-sidebar');
     return;
   }
 
@@ -13024,6 +13031,7 @@ function displayAppointmentPatientInfo(patientId) {
 
   if (!patient) {
     sidebar.style.display = 'none';
+    if (modalBody) modalBody.classList.remove('has-sidebar');
     return;
   }
 
@@ -13060,15 +13068,18 @@ function displayAppointmentPatientInfo(patientId) {
   }
 
   sidebar.style.display = 'block';
+  if (modalBody) modalBody.classList.add('has-sidebar');
 }
 
 function displaySwitchPatientInfo(patientId) {
   const sidebar = byId('switchPatientInfo');
+  const modalBody = sidebar?.closest('.modal-body-split');
 
   if (!sidebar) return;
 
   if (!patientId) {
     sidebar.style.display = 'none';
+    if (modalBody) modalBody.classList.remove('has-sidebar');
     return;
   }
 
@@ -13076,6 +13087,7 @@ function displaySwitchPatientInfo(patientId) {
 
   if (!patient) {
     sidebar.style.display = 'none';
+    if (modalBody) modalBody.classList.remove('has-sidebar');
     return;
   }
 
@@ -13112,6 +13124,7 @@ function displaySwitchPatientInfo(patientId) {
   }
 
   sidebar.style.display = 'block';
+  if (modalBody) modalBody.classList.add('has-sidebar');
 }
 
 function checkExistingAppointments(patientId) {
