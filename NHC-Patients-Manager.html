@@ -2620,7 +2620,7 @@ body {
               <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
               Fast Create Ordo
             </button>
-            <button class="btn" onclick="openTaskModal()" style="justify-content: center; padding: 1rem; background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); color: white;">
+            <button class="btn btn-secondary" onclick="openTaskModal()" style="justify-content: center; padding: 1rem;">
               <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path><path d="M8 11a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"></path></svg>
               Nouvelle tâche
             </button>
@@ -2813,19 +2813,19 @@ body {
           </div>
         </div>
         <div class="card-body">
-          <!-- Statistics Row -->
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-            <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: var(--radius); padding: 1rem; color: white;">
-              <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.25rem;">Arrêts temporaires</div>
-              <div style="font-size: 2rem; font-weight: 700;" id="countTemporaryPause">0</div>
+          <!-- Statistics Row - Medical UI -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow);">
+              <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Arrêts temporaires</div>
+              <div style="font-size: 2.25rem; font-weight: 700; color: var(--warning);" id="countTemporaryPause">0</div>
             </div>
-            <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: var(--radius); padding: 1rem; color: white;">
-              <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.25rem;">Arrêts définitifs</div>
-              <div style="font-size: 2rem; font-weight: 700;" id="countPermanentPause">0</div>
+            <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow);">
+              <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Arrêts définitifs</div>
+              <div style="font-size: 2.25rem; font-weight: 700; color: var(--danger);" id="countPermanentPause">0</div>
             </div>
-            <div style="background: linear-gradient(135deg, #64748b 0%, #475569 100%); border-radius: var(--radius); padding: 1rem; color: white;">
-              <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.25rem;">Total archivés</div>
-              <div style="font-size: 2rem; font-weight: 700;" id="countTotalArchived">0</div>
+            <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow);">
+              <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Total archivés</div>
+              <div style="font-size: 2.25rem; font-weight: 700; color: var(--text-secondary);" id="countTotalArchived">0</div>
             </div>
           </div>
           
@@ -3014,40 +3014,40 @@ body {
         </div>
       </div>
       
-      <!-- Timeline View Container -->
+      <!-- Timeline View Container - Medical UI -->
       <div id="timelineViewContainer" style="display: none;">
         <div class="card mb-3">
-          <div class="card-header" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white;">
-            <h3 class="card-title">📅 Timeline des Switches - <span id="timelineMonth"></span></h3>
+          <div class="card-header">
+            <h3 class="card-title" style="color: var(--text-primary);">📅 Timeline des Switches - <span id="timelineMonth"></span></h3>
           </div>
           <div class="card-body" style="padding: 2rem; background: var(--bg-secondary);">
             <div id="timelineContent" style="position: relative; min-height: 400px;"></div>
           </div>
         </div>
-        
-        <!-- Légende -->
+
+        <!-- Légende - Medical UI -->
         <div class="card mb-3">
           <div class="card-body">
             <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; align-items: center;">
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <div style="width: 16px; height: 16px; border-radius: 50%; background: #ef4444;"></div>
-                <span style="font-size: 14px;">En retard</span>
+              <div style="display: flex; align-items: center; gap: 0.625rem;">
+                <div style="width: 18px; height: 18px; border-radius: 50%; background: var(--danger); box-shadow: var(--shadow-sm);"></div>
+                <span style="font-size: 0.9rem; color: var(--text-primary); font-weight: 500;">En retard</span>
               </div>
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <div style="width: 16px; height: 16px; border-radius: 50%; background: #f59e0b;"></div>
-                <span style="font-size: 14px;">Aujourd'hui</span>
+              <div style="display: flex; align-items: center; gap: 0.625rem;">
+                <div style="width: 18px; height: 18px; border-radius: 50%; background: var(--warning); box-shadow: var(--shadow-sm);"></div>
+                <span style="font-size: 0.9rem; color: var(--text-primary); font-weight: 500;">Aujourd'hui</span>
               </div>
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <div style="width: 16px; height: 16px; border-radius: 50%; background: #3b82f6;"></div>
-                <span style="font-size: 14px;">Cette semaine</span>
+              <div style="display: flex; align-items: center; gap: 0.625rem;">
+                <div style="width: 18px; height: 18px; border-radius: 50%; background: var(--primary); box-shadow: var(--shadow-sm);"></div>
+                <span style="font-size: 0.9rem; color: var(--text-primary); font-weight: 500;">Cette semaine</span>
               </div>
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <div style="width: 16px; height: 16px; border-radius: 50%; background: #10b981;"></div>
-                <span style="font-size: 14px;">Ce mois</span>
+              <div style="display: flex; align-items: center; gap: 0.625rem;">
+                <div style="width: 18px; height: 18px; border-radius: 50%; background: var(--success); box-shadow: var(--shadow-sm);"></div>
+                <span style="font-size: 0.9rem; color: var(--text-primary); font-weight: 500;">Ce mois</span>
               </div>
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <div style="width: 16px; height: 16px; border-radius: 50%; background: #6b7280;"></div>
-                <span style="font-size: 14px;">Effectué</span>
+              <div style="display: flex; align-items: center; gap: 0.625rem;">
+                <div style="width: 18px; height: 18px; border-radius: 50%; background: var(--text-muted); box-shadow: var(--shadow-sm);"></div>
+                <span style="font-size: 0.9rem; color: var(--text-primary); font-weight: 500;">Effectué</span>
               </div>
             </div>
           </div>
@@ -3057,33 +3057,33 @@ body {
       <!-- List View Container (existing cards) -->
       <div id="listViewContainer">
       
-      <!-- Switches à venir ce mois -->
+      <!-- Switches à venir ce mois - Medical UI -->
       <div class="card mb-3">
-        <div class="card-header" style="background: linear-gradient(135deg, var(--warning) 0%, #f59e0b 100%); color: white;">
-          <h3 class="card-title">📅 Switches prévus ce mois</h3>
-          <span class="badge" id="countSwitchesMonth" style="background: white; color: var(--warning);">0</span>
+        <div class="card-header">
+          <h3 class="card-title" style="color: var(--text-primary);">📅 Switches prévus ce mois</h3>
+          <span class="badge" id="countSwitchesMonth" style="background: var(--warning); color: white;">0</span>
         </div>
         <div class="card-body">
           <div id="switchesMonth"></div>
         </div>
       </div>
-      
-      <!-- Switches futurs -->
+
+      <!-- Switches futurs - Medical UI -->
       <div class="card mb-3">
-        <div class="card-header" style="background: linear-gradient(135deg, var(--info) 0%, #0891b2 100%); color: white;">
-          <h3 class="card-title">⏳ Switches futurs</h3>
-          <span class="badge" id="countSwitchesFuture" style="background: white; color: var(--info);">0</span>
+        <div class="card-header">
+          <h3 class="card-title" style="color: var(--text-primary);">⏳ Switches futurs</h3>
+          <span class="badge" id="countSwitchesFuture" style="background: var(--secondary); color: white;">0</span>
         </div>
         <div class="card-body">
           <div id="switchesFuture"></div>
         </div>
       </div>
-      
-      <!-- Switches passés -->
+
+      <!-- Switches passés - Medical UI -->
       <div class="card">
-        <div class="card-header" style="background: linear-gradient(135deg, var(--success) 0%, #059669 100%); color: white;">
-          <h3 class="card-title">🔄 Switches effectués</h3>
-          <span class="badge" id="countSwitchesPast" style="background: white; color: var(--success);">0</span>
+        <div class="card-header">
+          <h3 class="card-title" style="color: var(--text-primary);">🔄 Switches effectués</h3>
+          <span class="badge" id="countSwitchesPast" style="background: var(--success); color: white;">0</span>
         </div>
         <div class="card-body">
           <div id="switchesPast"></div>
@@ -3094,45 +3094,45 @@ body {
     
     <!-- Appointments/Follow-ups View -->
     <section id="appointments" class="view">
-      <!-- Dashboard RDV - Style moderne -->
+      <!-- Dashboard RDV - Medical UI -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
         <!-- RDV ce mois -->
-        <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-md); color: white; transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='var(--shadow-xl)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'">
-          <div style="position: absolute; top: -20px; right: -20px; font-size: 6rem; opacity: 0.2;">📅</div>
+        <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow); transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--primary)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'; this.style.borderColor='var(--border-light)'">
+          <div style="position: absolute; top: -15px; right: 10px; font-size: 5rem; opacity: 0.06;">📅</div>
           <div style="position: relative; z-index: 1;">
-            <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">RDV ce mois</div>
-            <div style="font-size: 3rem; font-weight: 800; line-height: 1;" id="kpiAppointmentsThisMonth">0</div>
-            <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 0.5rem;">Rendez-vous planifiés</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">RDV ce mois</div>
+            <div style="font-size: 2.75rem; font-weight: 700; line-height: 1; color: var(--primary);" id="kpiAppointmentsThisMonth">0</div>
+            <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.75rem; font-weight: 500;">Rendez-vous planifiés</div>
           </div>
         </div>
 
         <!-- À rappeler -->
-        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-md); color: white; transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='var(--shadow-xl)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'">
-          <div style="position: absolute; top: -20px; right: -20px; font-size: 6rem; opacity: 0.2;">📞</div>
+        <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow); transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--warning)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'; this.style.borderColor='var(--border-light)'">
+          <div style="position: absolute; top: -15px; right: 10px; font-size: 5rem; opacity: 0.06;">📞</div>
           <div style="position: relative; z-index: 1;">
-            <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">À rappeler</div>
-            <div style="font-size: 3rem; font-weight: 800; line-height: 1;" id="kpiAppointmentsToCall">0</div>
-            <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 0.5rem;">Patients à contacter</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">À rappeler</div>
+            <div style="font-size: 2.75rem; font-weight: 700; line-height: 1; color: var(--warning);" id="kpiAppointmentsToCall">0</div>
+            <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.75rem; font-weight: 500;">Patients à contacter</div>
           </div>
         </div>
 
         <!-- 30 prochains jours -->
-        <div style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-md); color: white; transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='var(--shadow-xl)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'">
-          <div style="position: absolute; top: -20px; right: -20px; font-size: 6rem; opacity: 0.2;">⏰</div>
+        <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow); transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--secondary)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'; this.style.borderColor='var(--border-light)'">
+          <div style="position: absolute; top: -15px; right: 10px; font-size: 5rem; opacity: 0.06;">⏰</div>
           <div style="position: relative; z-index: 1;">
-            <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">30 prochains jours</div>
-            <div style="font-size: 3rem; font-weight: 800; line-height: 1;" id="kpiAppointmentsNext30">0</div>
-            <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 0.5rem;">Suivis à venir</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">30 prochains jours</div>
+            <div style="font-size: 2.75rem; font-weight: 700; line-height: 1; color: var(--secondary);" id="kpiAppointmentsNext30">0</div>
+            <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.75rem; font-weight: 500;">Suivis à venir</div>
           </div>
         </div>
 
         <!-- Réalisés -->
-        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-md); color: white; transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='var(--shadow-xl)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'">
-          <div style="position: absolute; top: -20px; right: -20px; font-size: 6rem; opacity: 0.2;">✅</div>
+        <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow); transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--success)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'; this.style.borderColor='var(--border-light)'">
+          <div style="position: absolute; top: -15px; right: 10px; font-size: 5rem; opacity: 0.06;">✅</div>
           <div style="position: relative; z-index: 1;">
-            <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">Réalisés</div>
-            <div style="font-size: 3rem; font-weight: 800; line-height: 1;" id="kpiAppointmentsDone">0</div>
-            <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 0.5rem;">Total effectués</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Réalisés</div>
+            <div style="font-size: 2.75rem; font-weight: 700; line-height: 1; color: var(--success);" id="kpiAppointmentsDone">0</div>
+            <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.75rem; font-weight: 500;">Total effectués</div>
           </div>
         </div>
       </div>
@@ -3187,45 +3187,45 @@ body {
 
     <!-- Tasks View -->
     <section id="tasks" class="view">
-      <!-- Dashboard Tâches - Style moderne -->
+      <!-- Dashboard Tâches - Medical UI -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
         <!-- À faire -->
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-md); color: white; transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='var(--shadow-xl)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'">
-          <div style="position: absolute; top: -20px; right: -20px; font-size: 6rem; opacity: 0.2;">📋</div>
+        <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow); transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--primary)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'; this.style.borderColor='var(--border-light)'">
+          <div style="position: absolute; top: -15px; right: 10px; font-size: 5rem; opacity: 0.06;">📋</div>
           <div style="position: relative; z-index: 1;">
-            <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">À faire</div>
-            <div style="font-size: 3rem; font-weight: 800; line-height: 1;" id="kpiTasksTodo">0</div>
-            <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 0.5rem;">Tâches en attente</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">À faire</div>
+            <div style="font-size: 2.75rem; font-weight: 700; line-height: 1; color: var(--primary);" id="kpiTasksTodo">0</div>
+            <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.75rem; font-weight: 500;">Tâches en attente</div>
           </div>
         </div>
 
         <!-- En cours -->
-        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-md); color: white; transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='var(--shadow-xl)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'">
-          <div style="position: absolute; top: -20px; right: -20px; font-size: 6rem; opacity: 0.2;">⏳</div>
+        <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow); transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--secondary)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'; this.style.borderColor='var(--border-light)'">
+          <div style="position: absolute; top: -15px; right: 10px; font-size: 5rem; opacity: 0.06;">⏳</div>
           <div style="position: relative; z-index: 1;">
-            <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">En cours</div>
-            <div style="font-size: 3rem; font-weight: 800; line-height: 1;" id="kpiTasksInProgress">0</div>
-            <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 0.5rem;">Tâches actives</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">En cours</div>
+            <div style="font-size: 2.75rem; font-weight: 700; line-height: 1; color: var(--secondary);" id="kpiTasksInProgress">0</div>
+            <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.75rem; font-weight: 500;">Tâches actives</div>
           </div>
         </div>
 
         <!-- Urgentes -->
-        <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-md); color: white; transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='var(--shadow-xl)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'">
-          <div style="position: absolute; top: -20px; right: -20px; font-size: 6rem; opacity: 0.2;">🔴</div>
+        <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow); transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--danger)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'; this.style.borderColor='var(--border-light)'">
+          <div style="position: absolute; top: -15px; right: 10px; font-size: 5rem; opacity: 0.06;">🔴</div>
           <div style="position: relative; z-index: 1;">
-            <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">Urgentes</div>
-            <div style="font-size: 3rem; font-weight: 800; line-height: 1;" id="kpiTasksUrgent">0</div>
-            <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 0.5rem;">Nécessitent attention</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Urgentes</div>
+            <div style="font-size: 2.75rem; font-weight: 700; line-height: 1; color: var(--danger);" id="kpiTasksUrgent">0</div>
+            <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.75rem; font-weight: 500;">Nécessitent attention</div>
           </div>
         </div>
 
         <!-- Terminées -->
-        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-md); color: white; transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='var(--shadow-xl)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-md)'">
-          <div style="position: absolute; top: -20px; right: -20px; font-size: 6rem; opacity: 0.2;">✅</div>
+        <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow); transition: var(--transition); cursor: pointer; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--success)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow)'; this.style.borderColor='var(--border-light)'">
+          <div style="position: absolute; top: -15px; right: 10px; font-size: 5rem; opacity: 0.06;">✅</div>
           <div style="position: relative; z-index: 1;">
-            <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">Terminées</div>
-            <div style="font-size: 3rem; font-weight: 800; line-height: 1;" id="kpiTasksCompleted">0</div>
-            <div style="font-size: 0.85rem; opacity: 0.8; margin-top: 0.5rem;">Tâches accomplies</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Terminées</div>
+            <div style="font-size: 2.75rem; font-weight: 700; line-height: 1; color: var(--success);" id="kpiTasksCompleted">0</div>
+            <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.75rem; font-weight: 500;">Tâches accomplies</div>
           </div>
         </div>
       </div>
