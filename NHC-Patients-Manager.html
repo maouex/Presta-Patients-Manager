@@ -1229,6 +1229,13 @@ body {
   font-style: italic;
 }
 
+.calendar-event.completed {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.2) 100%);
+  color: #22c55e;
+  border-left: 3px solid #22c55e;
+  opacity: 0.85;
+}
+
 .calendar-event-icon {
   font-size: 0.875rem;
   flex-shrink: 0;
@@ -2603,6 +2610,10 @@ body {
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <span style="font-size: 1rem;">🔄</span>
               <span style="font-size: 0.875rem; color: var(--text-secondary);">Switch planifié</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1rem;">✅</span>
+              <span style="font-size: 0.875rem; color: #22c55e;">Événement effectué</span>
             </div>
           </div>
         </div>
@@ -5671,6 +5682,57 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// Auto-format date inputs (JJ/MM/AAAA) with automatic progression
+function setupAutoFormatDateInput(input) {
+  if (!input) return;
+
+  input.addEventListener('input', function(e) {
+    // Remove all non-digit characters
+    let value = e.target.value.replace(/\D/g, '');
+    let formattedValue = '';
+
+    if (value.length > 0) {
+      // Day (max 2 digits)
+      formattedValue = value.substring(0, 2);
+
+      if (value.length >= 3) {
+        // Add slash and month
+        formattedValue += '/' + value.substring(2, 4);
+
+        if (value.length >= 5) {
+          // Add slash and year
+          formattedValue += '/' + value.substring(4, 8);
+        }
+      }
+    }
+
+    e.target.value = formattedValue;
+  });
+
+  // Prevent non-numeric input (except control keys)
+  input.addEventListener('keydown', function(e) {
+    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+    if (!allowedKeys.includes(e.key) && !/\d/.test(e.key)) {
+      e.preventDefault();
+    }
+  });
+
+  // Add placeholder with instruction
+  if (!input.placeholder || input.placeholder === 'JJ/MM/AAAA') {
+    input.placeholder = 'JJMMAAAA (saisie auto)';
+  }
+
+  // Add a title for better UX
+  input.title = 'Saisissez les chiffres sans "/" - Format automatique JJ/MM/AAAA';
+}
+
+// Initialize all date inputs with auto-formatting
+function initAutoFormatDateInputs() {
+  // Find all inputs with JJ/MM/AAAA pattern
+  const dateInputs = document.querySelectorAll('input[pattern="\\d{2}/\\d{2}/\\d{4}"]');
+  dateInputs.forEach(input => setupAutoFormatDateInput(input));
+}
+
 // Add an event to patient's event history
 function addPatientEvent(patientId, eventType, description, metadata = {}) {
   const patient = state.patients.find(p => p.id === patientId);
@@ -5855,6 +5917,9 @@ function showModal(show, modalId = 'patientModal') {
   }
   if (show) {
     modal.classList.add('active');
+    // Re-initialize date inputs in this modal when it opens
+    const dateInputs = modal.querySelectorAll('input[pattern="\\d{2}/\\d{2}/\\d{4}"]');
+    dateInputs.forEach(input => setupAutoFormatDateInput(input));
   } else {
     modal.classList.remove('active');
   }
@@ -6924,10 +6989,11 @@ function renderDashboardCalendar() {
       visibleEvents.forEach(event => {
         const icon = event.type === 'appointment' ? '📅' : '🔄';
         const eventClass = event.type === 'appointment' ? 'appointment' : 'switch';
+        const completedClass = event.isCompleted ? ' completed' : '';
         const displayText = event.time ? `${event.time} ${event.patientName}` : event.patientName;
 
         html += `
-          <div class="calendar-event ${eventClass}"
+          <div class="calendar-event ${eventClass}${completedClass}"
                data-event-id="${event.eventId}"
                data-event-type="${event.eventType}"
                title="${escapeHtml(event.title)}"
@@ -6997,10 +7063,11 @@ function getMonthEvents(year, month) {
     });
   }
 
-  // Get switches for this month
+  // Get switches for this month (both planned and completed)
   if (state.switches && state.switches.length > 0) {
     state.switches.forEach(sw => {
-      if (sw.status !== 'planned') return;
+      // Include both 'planned' and 'completed' switches
+      if (sw.status !== 'planned' && sw.status !== 'completed') return;
 
       if (sw.switchDate) {
         const parts = sw.switchDate.split('/');
@@ -7013,15 +7080,17 @@ function getMonthEvents(year, month) {
             const patient = state.patients.find(p => p.id === sw.patientId);
             if (patient) {
               const timeStr = sw.time ? ` à ${sw.time}` : '';
+              const isCompleted = sw.status === 'completed';
               events.push({
                 day: day,
                 type: 'switch',
-                title: `Switch: ${fullName(patient)} - ${protoName(sw.oldProtoId)} → ${protoName(sw.newProtoId)}${timeStr}`,
+                title: `Switch: ${fullName(patient)} - ${protoName(sw.oldProtoId)} → ${protoName(sw.newProtoId)}${timeStr}${isCompleted ? ' (Effectué)' : ''}`,
                 patientName: fullName(patient),
                 time: sw.time,
                 data: sw,
                 eventId: sw.id,
-                eventType: 'switch'
+                eventType: 'switch',
+                isCompleted: isCompleted
               });
             }
           }
@@ -17807,10 +17876,13 @@ function init() {
   
   // Bind events
   bindEvents();
-  
+
+  // Initialize auto-format date inputs
+  initAutoFormatDateInputs();
+
   // Setup tutorial modal
   setupTutorialModal();
-  
+
   // Initial render
   render();
   
