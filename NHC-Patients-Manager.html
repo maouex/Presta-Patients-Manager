@@ -1441,6 +1441,17 @@ body {
   }
 }
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes bounceIn {
   0% {
     opacity: 0;
@@ -2489,13 +2500,33 @@ body {
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden;">
         <div style="position: absolute; top: 0; right: 0; width: 300px; height: 300px; background: rgba(255,255,255,0.1); border-radius: 50%; transform: translate(30%, -30%);"></div>
         <div style="position: absolute; bottom: 0; left: 0; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%; transform: translate(-30%, 30%);"></div>
-        <div style="position: relative; z-index: 1;">
-          <h1 style="color: white; font-size: 2rem; font-weight: 800; margin: 0 0 0.5rem 0;">
-            Tableau de Bord 📊
-          </h1>
-          <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin: 0;" id="dashboardWelcome">
-            Bienvenue ! Voici votre vue d'ensemble
-          </p>
+        <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h1 style="color: white; font-size: 2rem; font-weight: 800; margin: 0 0 0.5rem 0;">
+              Tableau de Bord 📊
+            </h1>
+            <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin: 0;" id="dashboardWelcome">
+              Bienvenue ! Voici votre vue d'ensemble
+            </p>
+          </div>
+          <!-- Notification Bell -->
+          <div style="position: relative;">
+            <button id="notificationBell" onclick="toggleNotifications()" style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 1rem; border-radius: 50%; cursor: pointer; transition: all 0.3s; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; position: relative;">
+              🔔
+              <span id="notificationBadge" style="position: absolute; top: 0; right: 0; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; display: none; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; border: 2px solid #667eea;"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notification Panel -->
+      <div id="notificationPanel" style="display: none; margin-bottom: 1.5rem; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; animation: slideDown 0.3s ease;">
+        <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 1rem 1.5rem; color: white; display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700;">🔔 Notifications</h3>
+          <button onclick="toggleNotifications()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem; border-radius: 50%; cursor: pointer; font-size: 1.25rem; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">✕</button>
+        </div>
+        <div id="notificationList" style="max-height: 500px; overflow-y: auto;">
+          <!-- Notifications seront générées dynamiquement -->
         </div>
       </div>
 
@@ -2635,60 +2666,17 @@ body {
         </div>
       </div>
 
-      <!-- Alertes urgentes -->
-      <div id="dashboardAlerts" style="margin-bottom: 1.5rem;"></div>
-
-      <!-- Contenu principal en 2 colonnes -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; align-items: start;">
-        <!-- Colonne gauche -->
-        <div style="display: flex; flex-direction: column; gap: 1.5rem; height: 100%;">
-          <!-- Switchs à venir -->
-          <div class="card" style="display: flex; flex-direction: column;">
-            <div class="card-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; flex-shrink: 0;">
-              <h3 class="card-title" style="display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-                <span>🔄</span>
-                Switchs planifiés
-              </h3>
-              <span class="badge" id="dashboardSwitchesCount" style="background: rgba(255,255,255,0.3); color: white; font-weight: 700;">0</span>
-            </div>
-            <div class="card-body" style="padding: 0; display: flex; flex-direction: column;">
-              <div id="dashboardSwitchesList" style="max-height: 350px; overflow-y: auto;">
-                <p class="text-muted text-center" style="padding: 2rem;">Aucun switch planifié</p>
-              </div>
-            </div>
-          </div>
+      <!-- Répartition des protocoles - Pleine largeur -->
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-header">
+          <h3 class="card-title" style="display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+            <span>📊</span>
+            Répartition des protocoles
+          </h3>
         </div>
-
-        <!-- Colonne droite -->
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-          <!-- Ordonnances à renouveler -->
-          <div class="card" style="display: flex; flex-direction: column; min-height: 400px;">
-            <div class="card-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; flex-shrink: 0;">
-              <h3 class="card-title" style="display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-                <span>📋</span>
-                Ordonnances à renouveler (30j)
-              </h3>
-            </div>
-            <div class="card-body" style="padding: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden;">
-              <div style="flex: 1; overflow-y: auto;" id="dashboardRenewalsList">
-                <p class="text-muted text-center" style="padding: 2rem;">Aucune ordonnance à renouveler</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Répartition des protocoles -->
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title" style="display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-                <span>📊</span>
-                Répartition des protocoles
-              </h3>
-            </div>
-            <div class="card-body">
-              <div id="dashboardProtocolsChart" style="min-height: 200px;">
-                <p class="text-muted text-center">Chargement...</p>
-              </div>
-            </div>
+        <div class="card-body">
+          <div id="dashboardProtocolsChart" style="min-height: 250px;">
+            <p class="text-muted text-center">Chargement...</p>
           </div>
         </div>
       </div>
@@ -6255,47 +6243,77 @@ function renderDashboard() {
   renderDashboardProtocolsChart();
 }
 
-function renderDashboardAlerts(renews30) {
-  const container = byId('dashboardAlerts');
-  if (!container) return;
-  
+// Toggle notification panel
+function toggleNotifications() {
+  const panel = byId('notificationPanel');
+  if (!panel) return;
+
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    renderNotifications();
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+// Render notifications
+function renderNotifications() {
+  const notificationList = byId('notificationList');
+  if (!notificationList) return;
+
   const now = new Date();
-  let alerts = [];
-  
-  // Ordonnances critiques (≤7 jours)
+  let notifications = [];
+
+  // Calculer les renouvellements dans les 30 jours
+  const renews30 = state.patients.filter(p => {
+    const days = daysUntilRenewal(p.renewalDate);
+    return days !== null && days <= 30;
+  });
+
+  // 1. Ordonnances critiques (≤7 jours) - URGENT
   const criticalRenewals = renews30.filter(p => {
     const days = daysUntilRenewal(p.renewalDate);
     return days !== null && days <= 7;
   });
-  
+
   if (criticalRenewals.length > 0) {
-    alerts.push({
-      type: 'danger',
-      icon: '🚨',
-      title: `${criticalRenewals.length} ordonnance(s) critique(s)`,
-      message: `À renouveler dans les 7 prochains jours`,
-      action: () => switchView('ordos')
+    criticalRenewals.forEach(p => {
+      const days = daysUntilRenewal(p.renewalDate);
+      notifications.push({
+        type: 'danger',
+        icon: '🚨',
+        title: `Ordonnance critique - ${fullName(p)}`,
+        message: `À renouveler dans ${days} jour${days > 1 ? 's' : ''}`,
+        action: () => { toggleNotifications(); viewPatientDetails(p.id); },
+        priority: 1
+      });
     });
   }
-  
-  // Switchs en retard
+
+  // 2. Switchs en retard - URGENT
   const lateSwitches = (state.switches || []).filter(sw => {
     if (sw.status !== 'planned') return false;
     const swDate = parseDate(sw.switchDate);
     return swDate && swDate < now;
   });
-  
+
   if (lateSwitches.length > 0) {
-    alerts.push({
-      type: 'warning',
-      icon: '⚠️',
-      title: `${lateSwitches.length} switch(s) en retard`,
-      message: 'Nécessitent votre attention',
-      action: () => switchView('switches')
+    lateSwitches.forEach(sw => {
+      const patient = state.patients.find(p => p.id === sw.patientId);
+      if (patient) {
+        notifications.push({
+          type: 'danger',
+          icon: '⚠️',
+          title: `Switch en retard - ${fullName(patient)}`,
+          message: `Prévu le ${sw.switchDate}`,
+          action: () => { toggleNotifications(); switchView('switches'); },
+          priority: 1
+        });
+      }
     });
   }
-  
-  // Rendez-vous aujourd'hui
+
+  // 3. Rendez-vous aujourd'hui - IMPORTANT
   const todayAppointments = (state.appointments || []).filter(a => {
     if (a.status !== 'active' || !a.exactDate) return false;
     const parts = a.exactDate.split('/');
@@ -6303,49 +6321,199 @@ function renderDashboardAlerts(renews30) {
     const aptDate = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
     return aptDate.toDateString() === now.toDateString();
   });
-  
+
   if (todayAppointments.length > 0) {
-    alerts.push({
-      type: 'info',
-      icon: '📅',
-      title: `${todayAppointments.length} rendez-vous aujourd'hui`,
-      message: 'Consultez votre planning',
-      action: () => switchView('appointments')
+    todayAppointments.forEach(a => {
+      const patient = state.patients.find(p => p.id === a.patientId);
+      if (patient) {
+        const timeStr = a.time ? ` à ${a.time}` : '';
+        notifications.push({
+          type: 'info',
+          icon: '📅',
+          title: `RDV aujourd'hui - ${fullName(patient)}`,
+          message: `${a.type || 'Suivi'}${timeStr}`,
+          action: () => { toggleNotifications(); switchView('appointments'); },
+          priority: 2
+        });
+      }
     });
   }
-  
-  // Affichage des alertes
-  if (alerts.length === 0) {
-    container.innerHTML = '';
+
+  // 4. Switchs planifiés (à venir dans les 30 jours) - NORMAL
+  const upcomingSwitches = (state.switches || []).filter(sw => {
+    if (sw.status !== 'planned') return false;
+    const swDate = parseDate(sw.switchDate);
+    if (!swDate) return false;
+    const diffTime = swDate - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 30;
+  });
+
+  if (upcomingSwitches.length > 0) {
+    upcomingSwitches.slice(0, 5).forEach(sw => {
+      const patient = state.patients.find(p => p.id === sw.patientId);
+      if (patient) {
+        const swDate = parseDate(sw.switchDate);
+        const diffDays = Math.ceil((swDate - now) / (1000 * 60 * 60 * 24));
+        notifications.push({
+          type: 'success',
+          icon: '🔄',
+          title: `Switch planifié - ${fullName(patient)}`,
+          message: `${sw.switchDate} (dans ${diffDays} jour${diffDays > 1 ? 's' : ''})`,
+          action: () => { toggleNotifications(); switchView('switches'); },
+          priority: 3
+        });
+      }
+    });
+    if (upcomingSwitches.length > 5) {
+      notifications.push({
+        type: 'success',
+        icon: '🔄',
+        title: `+${upcomingSwitches.length - 5} autres switchs planifiés`,
+        message: 'Voir la liste complète',
+        action: () => { toggleNotifications(); switchView('switches'); },
+        priority: 3
+      });
+    }
+  }
+
+  // 5. Ordonnances à renouveler (8-30 jours) - NORMAL
+  const upcomingRenewals = renews30.filter(p => {
+    const days = daysUntilRenewal(p.renewalDate);
+    return days !== null && days > 7 && days <= 30;
+  });
+
+  if (upcomingRenewals.length > 0) {
+    upcomingRenewals.slice(0, 5).forEach(p => {
+      const days = daysUntilRenewal(p.renewalDate);
+      notifications.push({
+        type: 'warning',
+        icon: '📋',
+        title: `Renouvellement prévu - ${fullName(p)}`,
+        message: `Dans ${days} jour${days > 1 ? 's' : ''}`,
+        action: () => { toggleNotifications(); viewPatientDetails(p.id); },
+        priority: 4
+      });
+    });
+    if (upcomingRenewals.length > 5) {
+      notifications.push({
+        type: 'warning',
+        icon: '📋',
+        title: `+${upcomingRenewals.length - 5} autres renouvellements prévus`,
+        message: 'Voir la liste complète',
+        action: () => { toggleNotifications(); switchView('ordos'); },
+        priority: 4
+      });
+    }
+  }
+
+  // Trier par priorité
+  notifications.sort((a, b) => a.priority - b.priority);
+
+  // Update badge
+  updateNotificationBadge(notifications.length);
+
+  // Affichage des notifications
+  if (notifications.length === 0) {
+    notificationList.innerHTML = `
+      <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">✨</div>
+        <div style="font-size: 1.1rem; font-weight: 600;">Aucune notification</div>
+        <div style="font-size: 0.9rem; margin-top: 0.5rem;">Vous êtes à jour !</div>
+      </div>
+    `;
     return;
   }
-  
+
   const colorMap = {
     danger: { bg: '#fee2e2', border: '#ef4444', text: '#991b1b' },
     warning: { bg: '#fef3c7', border: '#f59e0b', text: '#78350f' },
-    info: { bg: '#dbeafe', border: '#3b82f6', text: '#1e3a8a' }
+    info: { bg: '#dbeafe', border: '#3b82f6', text: '#1e3a8a' },
+    success: { bg: '#d1fae5', border: '#10b981', text: '#065f46' }
   };
-  
-  container.innerHTML = alerts.map(alert => {
-    const colors = colorMap[alert.type];
+
+  notificationList.innerHTML = notifications.map(notif => {
+    const colors = colorMap[notif.type];
     return `
-      <div style="background: ${colors.bg}; border-left: 4px solid ${colors.border}; padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1rem; cursor: pointer; transition: var(--transition);" 
-           onclick="(${alert.action.toString()})()"
-           onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='var(--shadow)'"
-           onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='none'">
+      <div style="background: ${colors.bg}; border-left: 4px solid ${colors.border}; padding: 1rem 1.5rem; cursor: pointer; transition: var(--transition); border-bottom: 1px solid rgba(0,0,0,0.05);"
+           onclick="(${notif.action.toString()})()"
+           onmouseover="this.style.background='${colors.bg}'; this.style.transform='translateX(5px)'"
+           onmouseout="this.style.background='${colors.bg}'; this.style.transform='translateX(0)'">
         <div style="display: flex; align-items: center; gap: 1rem;">
-          <div style="font-size: 2rem; flex-shrink: 0;">${alert.icon}</div>
+          <div style="font-size: 1.75rem; flex-shrink: 0;">${notif.icon}</div>
           <div style="flex: 1;">
-            <div style="font-weight: 700; color: ${colors.text}; margin-bottom: 0.25rem;">${alert.title}</div>
-            <div style="color: ${colors.text}; opacity: 0.8; font-size: 0.9rem;">${alert.message}</div>
+            <div style="font-weight: 700; color: ${colors.text}; margin-bottom: 0.25rem; font-size: 0.95rem;">${notif.title}</div>
+            <div style="color: ${colors.text}; opacity: 0.8; font-size: 0.85rem;">${notif.message}</div>
           </div>
-          <svg width="24" height="24" fill="${colors.border}" viewBox="0 0 20 20">
+          <svg width="20" height="20" fill="${colors.border}" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
           </svg>
         </div>
       </div>
     `;
   }).join('');
+}
+
+// Update notification badge
+function updateNotificationBadge(count) {
+  const badge = byId('notificationBadge');
+  if (!badge) return;
+
+  if (count > 0) {
+    badge.textContent = count > 99 ? '99+' : count;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// Deprecated function - kept for compatibility, now handled by notifications
+function renderDashboardAlerts(renews30) {
+  // This function is no longer used as alerts are now in the notification panel
+  // Update notification badge instead
+  const now = new Date();
+  let alertCount = 0;
+
+  // Count critical items
+  const criticalRenewals = renews30.filter(p => {
+    const days = daysUntilRenewal(p.renewalDate);
+    return days !== null && days <= 7;
+  });
+  alertCount += criticalRenewals.length;
+
+  const lateSwitches = (state.switches || []).filter(sw => {
+    if (sw.status !== 'planned') return false;
+    const swDate = parseDate(sw.switchDate);
+    return swDate && swDate < now;
+  });
+  alertCount += lateSwitches.length;
+
+  const todayAppointments = (state.appointments || []).filter(a => {
+    if (a.status !== 'active' || !a.exactDate) return false;
+    const parts = a.exactDate.split('/');
+    if (parts.length !== 3) return false;
+    const aptDate = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+    return aptDate.toDateString() === now.toDateString();
+  });
+  alertCount += todayAppointments.length;
+
+  // Add upcoming items
+  const upcomingSwitches = (state.switches || []).filter(sw => {
+    if (sw.status !== 'planned') return false;
+    const swDate = parseDate(sw.switchDate);
+    if (!swDate) return false;
+    const diffDays = Math.ceil((swDate - now) / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 30;
+  });
+  alertCount += upcomingSwitches.length;
+
+  const upcomingRenewals = renews30.filter(p => {
+    const days = daysUntilRenewal(p.renewalDate);
+    return days !== null && days > 7 && days <= 30;
+  });
+  alertCount += upcomingRenewals.length;
+
+  updateNotificationBadge(alertCount);
 }
 
 function renderDashboardAppointments() {
@@ -17920,6 +18088,7 @@ document.addEventListener('DOMContentLoaded', init);
 
 // ===== Expose functions to global scope for onclick handlers =====
 window.toggleTheme = toggleTheme;
+window.toggleNotifications = toggleNotifications;
 window.configureAutoSave = configureAutoSave;
 window.toggleAutoSave = toggleAutoSave;
 window.saveNow = saveNow;
